@@ -3,6 +3,7 @@ import com.leapmotion.leap.Frame;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.security.Key;
 
 public class MovementListener extends Listener {
 
@@ -34,6 +35,8 @@ public class MovementListener extends Listener {
 
 		handleForward(frame, interactionBox);
 		handleBackward(frame, interactionBox);
+		handleRight(frame, interactionBox);
+		handleLeft(frame, interactionBox);
 
 	}
 
@@ -50,10 +53,10 @@ public class MovementListener extends Listener {
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
 				if (hand.isLeft()) {
-					Vector normalizedPalmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-					//System.out.println(normalizedPalmPosition);
+					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+					//System.out.println(palmPosition);
 
-					if (normalizedPalmPosition.getZ() <= zMin) {
+					if (palmPosition.getZ() <= zMin) {
 						//System.out.println(" move forward maybe");
 						return true;
 					}
@@ -76,10 +79,44 @@ public class MovementListener extends Listener {
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
 				if (hand.isLeft()) {
-					Vector normalizedPalmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
 
-					if (normalizedPalmPosition.getZ() >= zMax) {
+					if (palmPosition.getZ() >= zMax) {
 						//System.out.println(" move backward maybe");
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean rightMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
+		double xMax = .75;
+
+		if (frame.hands().count() >= 1) {
+			for (Hand hand : frame.hands()) {
+				if (hand.isLeft()) {
+					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+					if (palmPosition.getX() >= xMax) {
+						//System.out.println("move right maybe");
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean leftMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
+		double xMin = .25;
+
+		if (frame.hands().count() >= 1) {
+			for (Hand hand : frame.hands()) {
+				if (hand.isLeft()) {
+					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+					if (palmPosition.getX() <= xMin) {
+						//System.out.println("move left maybe");
 						return true;
 					}
 				}
@@ -170,5 +207,77 @@ public class MovementListener extends Listener {
 			}
 		}
 	}
+
+	private void handleLeft(Frame frame, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+
+		if (leftMovementHoverDetected(frame, interactionBox)) {
+			if (!moveLeftFlag) {
+				gestureFlag = true;
+			}
+			moveLeftFlag = true;
+		} else {
+			if (moveLeftFlag) {
+				gestureFlag = true;
+			}
+			moveLeftFlag = false;
+		}
+
+		if (gestureFlag) {
+			System.out.println("moveLeftFlag raised " + moveLeftFlag);
+			if (moveLeftFlag) {
+				try {
+					Robot robot = new Robot();
+					robot.keyPress(KeyEvent.VK_A);
+				} catch (AWTException e) {
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					Robot robot = new Robot();
+					robot.keyRelease(KeyEvent.VK_A);
+				} catch (AWTException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
+	private void handleRight(Frame frame, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+		if (rightMovementHoverDetected(frame, interactionBox)) {
+			if (!moveRightFlag) {
+				gestureFlag = true;
+			}
+			moveRightFlag = true;
+		} else {
+			if (moveRightFlag) {
+				gestureFlag = true;
+			}
+			moveRightFlag = false;
+		}
+
+		if (gestureFlag) {
+			System.out.println("moveRightFlag raised " + moveRightFlag);
+			if (moveRightFlag) {
+				try {
+					Robot robot = new Robot();
+					robot.keyPress(KeyEvent.VK_D);
+				} catch (AWTException e) {
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					Robot robot = new Robot();
+					robot.keyPress(KeyEvent.VK_D);
+				} catch (AWTException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
 
 }
