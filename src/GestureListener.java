@@ -1,6 +1,5 @@
 import com.leapmotion.leap.*;
 import com.leapmotion.leap.Frame;
-import jdk.internal.util.xml.impl.Input;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
@@ -11,6 +10,9 @@ public class GestureListener extends Listener {
 	private boolean leftBioticGraspFlag;
 	private boolean bioticOrbFlag;
 	private boolean coalescenceFlag;
+
+	private double fingerPointingUpNum = .5;
+	private int fingerNum = 5;
 
 	public void onInit(Controller controller) {
 		System.out.println("Initialized");
@@ -32,7 +34,7 @@ public class GestureListener extends Listener {
 	public void onFrame(Controller controller) {
 		Frame frame = controller.frame();
 
-		//handleRightBioticGraspGesture(frame);
+		handleRightBioticGraspGesture(frame);
 		handleLeftBioticGraspGesture(frame);
 		handleCoalescenceGesture(frame);
 		handleBioticOrbGesture(frame);
@@ -45,7 +47,6 @@ public class GestureListener extends Listener {
 	 */
 	private void handleCoalescenceGesture(Frame frame) {
 		boolean gestureFlag = false;
-
 
 		if (coalescenceGestureDetected(frame)) {
 			if (!coalescenceFlag) {
@@ -188,9 +189,6 @@ public class GestureListener extends Listener {
 		}
 	}
 
-	private double fingerPointingUpNum = .5;
-	private int fingerNum = 5;
-
 	/**
 	 * detects if 5 fingers on the right hand are pointing up
 	 *
@@ -248,6 +246,7 @@ public class GestureListener extends Listener {
 		return false;
 	}
 
+
 	/**
 	 * //todo
 	 *
@@ -255,15 +254,25 @@ public class GestureListener extends Listener {
 	 * @return
 	 */
 	private boolean bioticOrbGestureDetected(Frame frame) {
+		double bioticOrbFingerDirection = -.8;
+		int bioticOrbFingerCount = 10;
+
 		if (frame.hands().count() >= 2) {
+			int fingerUpCount = 0;
 			for (Hand hand : frame.hands()) {
-				int fingerUpCount = 0;
+				//System.out.println("hand");
 				for (Finger finger : hand.fingers()) {
 					Vector pointDirection = finger.direction();
-					if (pointDirection.getY() > fingerPointingUpNum) {
+					//System.out.println("bioticOrbGestureDetected " + pointDirection.getZ());
+
+					if (pointDirection.getZ() <= bioticOrbFingerDirection) {
 						fingerUpCount++;
 					}
 				}
+			}
+			if (fingerUpCount >= bioticOrbFingerCount) {
+				//System.out.println("All 10 fingers facing forward?");
+				return true;
 			}
 		}
 		return false;
