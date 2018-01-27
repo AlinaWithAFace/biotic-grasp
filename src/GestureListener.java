@@ -9,6 +9,8 @@ import java.awt.event.KeyEvent;
 public class GestureListener extends Listener {
 	private boolean rightBioticGraspFlag;
 	private boolean leftBioticGraspFlag;
+	private boolean bioticOrbFlag;
+	private boolean coalescenceFlag;
 
 	public void onInit(Controller controller) {
 		System.out.println("Initialized");
@@ -30,11 +32,88 @@ public class GestureListener extends Listener {
 	public void onFrame(Controller controller) {
 		Frame frame = controller.frame();
 
-		handleRightBioticGraspGesture(frame);
+		//handleRightBioticGraspGesture(frame);
 		handleLeftBioticGraspGesture(frame);
+		handleCoalescenceGesture(frame);
+		handleBioticOrbGesture(frame);
+	}
+
+	/**
+	 * pressed q if coalescenceGesture is detected
+	 *
+	 * @param frame
+	 */
+	private void handleCoalescenceGesture(Frame frame) {
+		boolean gestureFlag = false;
+
+
+		if (coalescenceGestureDetected(frame)) {
+			if (!coalescenceFlag) {
+				gestureFlag = true;
+			}
+			coalescenceFlag = true;
+		} else {
+			if (coalescenceFlag) {
+				gestureFlag = true;
+			}
+			coalescenceFlag = false;
+		}
+
+		if (gestureFlag) {
+			System.out.println("coalescenceFlag raised " + coalescenceFlag);
+			if (coalescenceFlag) {
+				try {
+					Robot robot = new Robot();
+					robot.keyPress(KeyEvent.VK_Q);
+					robot.keyRelease(KeyEvent.VK_Q);
+				} catch (AWTException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+
+	/**
+	 * presses the E button if BioticOrbGesture is detected
+	 *
+	 * @param frame
+	 */
+	private void handleBioticOrbGesture(Frame frame) {
+		boolean gestureFlag = false;
+
+		if (bioticOrbGestureDetected(frame)) {
+			if (!bioticOrbFlag) {
+				gestureFlag = true;
+			}
+			bioticOrbFlag = true;
+		} else {
+			if (bioticOrbFlag) {
+				gestureFlag = true;
+			}
+			bioticOrbFlag = false;
+		}
+
+		if (gestureFlag) {
+			System.out.println("bioticOrbFlag raised " + bioticOrbFlag);
+			if (bioticOrbFlag) {
+				try {
+					Robot robot = new Robot();
+					robot.keyPress(KeyEvent.VK_E);
+					robot.keyRelease(KeyEvent.VK_E);
+				} catch (AWTException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 
 	}
 
+	/**
+	 * Hits the left mouse button if the gesture is detected
+	 *
+	 * @param frame
+	 */
 	private void handleLeftBioticGraspGesture(Frame frame) {
 		boolean gestureFlag = false;
 
@@ -71,7 +150,7 @@ public class GestureListener extends Listener {
 	}
 
 	/**
-	 * Presses a button on call depending on whether or not the gesture is happening
+	 * Hits the right mouse button if the gesture is detected
 	 */
 	private void handleRightBioticGraspGesture(Frame frame) {
 		boolean gestureFlag = false;
@@ -135,15 +214,12 @@ public class GestureListener extends Listener {
 						return true;
 					}
 				}
-
-
 			}
 		} else {
 			return false;
 		}
 		return false;
 	}
-
 
 	/**
 	 * detects if 5 fingers on the left hand are pointing up
@@ -172,6 +248,36 @@ public class GestureListener extends Listener {
 		return false;
 	}
 
+	/**
+	 * //todo
+	 *
+	 * @param frame
+	 * @return
+	 */
+	private boolean bioticOrbGestureDetected(Frame frame) {
+		if (frame.hands().count() >= 2) {
+			for (Hand hand : frame.hands()) {
+				int fingerUpCount = 0;
+				for (Finger finger : hand.fingers()) {
+					Vector pointDirection = finger.direction();
+					if (pointDirection.getY() > fingerPointingUpNum) {
+						fingerUpCount++;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * //todo
+	 *
+	 * @param frame
+	 * @return
+	 */
+	private boolean coalescenceGestureDetected(Frame frame) {
+		return false;
+	}
 
 }
 
