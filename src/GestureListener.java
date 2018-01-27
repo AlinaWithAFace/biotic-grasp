@@ -34,10 +34,11 @@ public class GestureListener extends Listener {
 	public void onFrame(Controller controller) {
 		Frame frame = controller.frame();
 
-		handleRightBioticGraspGesture(frame);
-		handleLeftBioticGraspGesture(frame);
 		handleCoalescenceGesture(frame);
 		handleBioticOrbGesture(frame);
+		handleRightBioticGraspGesture(frame);
+		handleLeftBioticGraspGesture(frame);
+
 	}
 
 	/**
@@ -278,6 +279,7 @@ public class GestureListener extends Listener {
 		return false;
 	}
 
+
 	/**
 	 * //todo
 	 *
@@ -285,6 +287,37 @@ public class GestureListener extends Listener {
 	 * @return
 	 */
 	private boolean coalescenceGestureDetected(Frame frame) {
+		double coalescenceFingerDirection = .8;
+		int coalescenceFingerCount = 4;
+		boolean thumbPass = false;
+
+		if (frame.hands().count() >= 1) {
+			for (Hand hand : frame.hands()) {
+				if (hand.isLeft()) {
+					int fingerUpCount = 0;
+					//System.out.println("hand");
+					for (Finger finger : hand.fingers()) {
+						Vector pointDirection = finger.direction();
+
+						if (finger.type() != Finger.Type.TYPE_THUMB) {
+							if (pointDirection.getY() > coalescenceFingerDirection) {
+								fingerUpCount++;
+							}
+						} else if (finger.type() == Finger.Type.TYPE_THUMB) {
+							//System.out.println(finger.type() + " pointDirection" + pointDirection.toString());
+							if (pointDirection.getX() > coalescenceFingerDirection){
+								thumbPass = true;
+							}
+						}
+					}
+					if (fingerUpCount >= coalescenceFingerCount && thumbPass) {
+						//System.out.println("four nonthumbs pointing up on left hand and thumb sufficiently pointing right");
+						return true;
+					}
+				}
+			}
+		}
+
 		return false;
 	}
 
