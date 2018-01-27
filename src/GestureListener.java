@@ -313,7 +313,6 @@ public class GestureListener extends Listener {
 				}
 			}
 		}
-
 		return false;
 	}
 }
