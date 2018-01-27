@@ -38,7 +38,6 @@ public class GestureListener extends Listener {
 		handleBioticOrbGesture(frame);
 		handleRightBioticGraspGesture(frame);
 		handleLeftBioticGraspGesture(frame);
-
 	}
 
 	/**
@@ -74,7 +73,6 @@ public class GestureListener extends Listener {
 			}
 		}
 	}
-
 
 	/**
 	 * presses the E button if BioticOrbGesture is detected
@@ -247,9 +245,8 @@ public class GestureListener extends Listener {
 		return false;
 	}
 
-
 	/**
-	 * //todo
+	 * detects whether all fingers of both hands are forward (think a T-Rex)
 	 *
 	 * @param frame
 	 * @return
@@ -279,9 +276,8 @@ public class GestureListener extends Listener {
 		return false;
 	}
 
-
 	/**
-	 * //todo
+	 * detects whether the left hand's 4 fingers are up and the thumb is to the right
 	 *
 	 * @param frame
 	 * @return
@@ -305,7 +301,7 @@ public class GestureListener extends Listener {
 							}
 						} else if (finger.type() == Finger.Type.TYPE_THUMB) {
 							//System.out.println(finger.type() + " pointDirection" + pointDirection.toString());
-							if (pointDirection.getX() > coalescenceFingerDirection){
+							if (pointDirection.getX() > coalescenceFingerDirection) {
 								thumbPass = true;
 							}
 						}
@@ -320,6 +316,5 @@ public class GestureListener extends Listener {
 
 		return false;
 	}
-
 }
 
