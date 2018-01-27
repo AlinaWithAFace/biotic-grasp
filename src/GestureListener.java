@@ -1,13 +1,14 @@
 import com.leapmotion.leap.*;
 import com.leapmotion.leap.Frame;
+import jdk.internal.util.xml.impl.Input;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 
 public class GestureListener extends Listener {
-	private boolean rightHandOpen;
+	private boolean rightBioticGraspFlag;
+	private boolean leftBioticGraspFlag;
 
 	public void onInit(Controller controller) {
 		System.out.println("Initialized");
@@ -27,118 +28,111 @@ public class GestureListener extends Listener {
 	}
 
 	public void onFrame(Controller controller) {
-		// Get the most recent frame and report some basic information
 		Frame frame = controller.frame();
-//		System.out.println("Frame id: " + frame.id()
-//				+ ", timestamp: " + frame.timestamp()
-//				+ ", hands: " + frame.hands().count()
-//				+ ", fingers: " + frame.fingers().count());
 
-		boolean rightHandChanged = false;
+		handleRightBioticGraspGesture(frame);
+		handleLeftBioticGraspGesture(frame);
 
-		if (tapGestureDetected(frame)) {
-			if (!rightHandOpen) {
-				rightHandChanged = true;
+	}
+
+	private void handleLeftBioticGraspGesture(Frame frame) {
+		boolean gestureFlag = false;
+
+		if (leftBioticGraspGestureDetected(frame)) {
+			if (!leftBioticGraspFlag) {
+				gestureFlag = true;
 			}
-			rightHandOpen = true;
-
-			//System.out.println("Found gesture!");
+			leftBioticGraspFlag = true;
 		} else {
-			if (rightHandOpen) {
-				rightHandChanged = true;
+			if (leftBioticGraspFlag) {
+				gestureFlag = true;
 			}
-			rightHandOpen = false;
+			leftBioticGraspFlag = false;
 		}
 
-
-		if (rightHandChanged) {
-			System.out.println("flag raised: " + rightHandOpen);
-
-			if (rightHandOpen) {
+		if (gestureFlag) {
+			System.out.println("leftBioticGraspFlag raised " + leftBioticGraspFlag);
+			if (leftBioticGraspFlag) {
 				try {
 					Robot robot = new Robot();
-
-					//robot.mousePress(InputEvent.BUTTON1_MASK);
-					robot.keyPress(KeyEvent.VK_Q);
+					robot.mousePress(InputEvent.BUTTON1_MASK);
+				} catch (AWTException e) {
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					Robot robot = new Robot();
+					robot.mouseRelease(InputEvent.BUTTON1_MASK);
 				} catch (AWTException e) {
 					e.printStackTrace();
 				}
 			}
-
-			rightHandChanged = false;
-		}
-
-
-		//Get hands
-		for (Hand hand : frame.hands()) {
-			String handType = hand.isLeft() ? "Left hand" : "Right hand";
-//			System.out.println("  " + handType + ", id: " + hand.id()
-//					+ ", palm position: " + hand.palmPosition());
-
-			// Get the hand's normal vector and direction
-			Vector normal = hand.palmNormal();
-			Vector direction = hand.direction();
-
-			// Calculate the hand's pitch, roll, and yaw angles
-//			System.out.println("  pitch: " + Math.toDegrees(direction.pitch()) + " degrees, "
-//					+ "roll: " + Math.toDegrees(normal.roll()) + " degrees, "
-//					+ "yaw: " + Math.toDegrees(direction.yaw()) + " degrees");
-
-			// Get arm bone
-			Arm arm = hand.arm();
-//			System.out.println("  Arm direction: " + arm.direction()
-//					+ ", wrist position: " + arm.wristPosition()
-//					+ ", elbow position: " + arm.elbowPosition());
-
-			// Get fingers
-			for (Finger finger : hand.fingers()) {
-//				System.out.println("    " + finger.type() + ", id: " + finger.id()
-//						+ ", length: " + finger.length()
-//						+ "mm, width: " + finger.width() + "mm");
-
-				//Get Bones
-				for (Bone.Type boneType : Bone.Type.values()) {
-					Bone bone = finger.bone(boneType);
-//					System.out.println("      " + bone.type()
-//							+ " bone, start: " + bone.prevJoint()
-//							+ ", end: " + bone.nextJoint()
-//							+ ", direction: " + bone.direction());
-				}
-			}
-		}
-
-		if (!frame.hands().isEmpty()) {
-			//System.out.println();
 		}
 	}
 
-	private boolean tapGestureDetected(Frame frame) {
+	/**
+	 * Presses a button on call depending on whether or not the gesture is happening
+	 */
+	private void handleRightBioticGraspGesture(Frame frame) {
+		boolean gestureFlag = false;
 
+		if (rightBioticGraspGestureDetected(frame)) {
+			if (!rightBioticGraspFlag) {
+				gestureFlag = true;
+			}
+			rightBioticGraspFlag = true;
+		} else {
+			if (rightBioticGraspFlag) {
+				gestureFlag = true;
+			}
+			rightBioticGraspFlag = false;
+		}
+
+		if (gestureFlag) {
+			System.out.println("rightBioticGraspFlag raised: " + rightBioticGraspFlag);
+			if (rightBioticGraspFlag) {
+				try {
+					Robot robot = new Robot();
+					robot.mousePress(InputEvent.BUTTON3_MASK);
+					//robot.keyPress(KeyEvent.VK_Q);
+				} catch (AWTException e) {
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					Robot robot = new Robot();
+					robot.mouseRelease(InputEvent.BUTTON3_MASK);
+				} catch (AWTException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private double fingerPointingUpNum = .5;
+	private int fingerNum = 5;
+
+	/**
+	 * detects if 5 fingers on the right hand are pointing up
+	 *
+	 * @param frame
+	 * @return
+	 */
+	private boolean rightBioticGraspGestureDetected(Frame frame) {
 		if ((frame.hands().count() > 0)) {
 			for (Hand hand : frame.hands()) {
-
-				int fingerCount = 0;
+				int fingerUpCount = 0;
 				for (Finger finger : frame.fingers()) {
-					Vector pointingToward = finger.direction();
-					if (pointingToward.getY() > .5) {
+					Vector pointDirection = finger.direction();
+					if (pointDirection.getY() > fingerPointingUpNum) {
 						//System.out.println("finger pointing up?");
-						fingerCount++;
-					}
-
-				}
-				if (hand.isLeft()) {
-					if (fingerCount >= 5) {
-						//System.out.println("All 5 fingers pointing up : left hand");
-					} else {
-						//System.out.println(" ");
+						fingerUpCount++;
 					}
 				}
 				if (hand.isRight()) {
-					if (fingerCount >= 5) {
+					if (fingerUpCount >= fingerNum) {
 						//System.out.println("All 5 fingers pointing up : right hand");
 						return true;
-					} else {
-						//System.out.println(" ");
 					}
 				}
 
@@ -148,8 +142,34 @@ public class GestureListener extends Listener {
 			return false;
 		}
 		return false;
+	}
 
 
+	/**
+	 * detects if 5 fingers on the left hand are pointing up
+	 *
+	 * @param frame
+	 * @return
+	 */
+	private boolean leftBioticGraspGestureDetected(Frame frame) {
+		if ((frame.hands().count() > 0)) {
+			for (Hand hand : frame.hands()) {
+				int fingerUpCount = 0;
+				for (Finger finger : hand.fingers()) {
+					Vector pointDirection = finger.direction();
+					if (pointDirection.getY() > fingerPointingUpNum) {
+						fingerUpCount++;
+					}
+				}
+				if (hand.isLeft()) {
+					if (fingerUpCount >= fingerNum) {
+						//System.out.println("All 5 fingers pointing up : left hand");
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 
