@@ -5,6 +5,10 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
+
+/**
+ * Handles various gestures using one or more hands
+ */
 public class GestureListener extends Listener {
 	private boolean rightBioticGraspFlag;
 	private boolean leftBioticGraspFlag;

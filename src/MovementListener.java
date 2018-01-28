@@ -3,14 +3,21 @@ import com.leapmotion.leap.Frame;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.security.Key;
 
+
+/**
+ * Handles WASD movement using the left hand
+ */
 public class MovementListener extends Listener {
 
 	private boolean moveForwardFlag;
 	private boolean moveBackwardFlag;
 	private boolean moveLeftFlag;
 	private boolean moveRightFlag;
+
+	private double leftHandZAxisMidPoint = .5;
+	private double leftHandXAxisMidPoint = .25;
+	private double leftHandXZAxisPadding = .18;
 
 	public void onInit(Controller controller) {
 		System.out.println("Initialized");
@@ -48,7 +55,7 @@ public class MovementListener extends Listener {
 	 * @return
 	 */
 	private boolean forwardMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
-		double zMin = .25;
+		double zMin = leftHandZAxisMidPoint - leftHandXZAxisPadding;
 
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
@@ -74,7 +81,7 @@ public class MovementListener extends Listener {
 	 * @return
 	 */
 	private boolean backwardMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
-		double zMax = .75;
+		double zMax = leftHandZAxisMidPoint + leftHandXZAxisPadding;
 
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
@@ -91,14 +98,21 @@ public class MovementListener extends Listener {
 		return false;
 	}
 
+	/**
+	 * detects if the left hand is over the right side of the left side (because that makes sense)
+	 *
+	 * @param frame
+	 * @param interactionBox
+	 * @return
+	 */
 	private boolean rightMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
-		double xMax = .75;
+		double xBoundary = leftHandXAxisMidPoint + leftHandXZAxisPadding;
 
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
 				if (hand.isLeft()) {
 					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-					if (palmPosition.getX() >= xMax) {
+					if (palmPosition.getX() >= xBoundary) {
 						//System.out.println("move right maybe");
 						return true;
 					}
@@ -108,14 +122,22 @@ public class MovementListener extends Listener {
 		return false;
 	}
 
+	/**
+	 * detects if the left hand is over in the leftmost range
+	 *
+	 * @param frame
+	 * @param interactionBox
+	 * @return
+	 */
 	private boolean leftMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
-		double xMin = .25;
+		double xBoundary = leftHandXAxisMidPoint - leftHandXZAxisPadding;
 
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
 				if (hand.isLeft()) {
 					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-					if (palmPosition.getX() <= xMin) {
+					//System.out.println(palmPosition.getX());
+					if (palmPosition.getX() <= xBoundary) {
 						//System.out.println("move left maybe");
 						return true;
 					}
@@ -208,6 +230,12 @@ public class MovementListener extends Listener {
 		}
 	}
 
+	/**
+	 * pushes the a key if leftMovementHoverDetected is true
+	 *
+	 * @param frame
+	 * @param interactionBox
+	 */
 	private void handleLeft(Frame frame, InteractionBox interactionBox) {
 		boolean gestureFlag = false;
 
@@ -244,6 +272,12 @@ public class MovementListener extends Listener {
 
 	}
 
+	/**
+	 * pushes the d key if rightMovementHoverDetected is true
+	 *
+	 * @param frame
+	 * @param interactionBox
+	 */
 	private void handleRight(Frame frame, InteractionBox interactionBox) {
 		boolean gestureFlag = false;
 		if (rightMovementHoverDetected(frame, interactionBox)) {
@@ -270,7 +304,7 @@ public class MovementListener extends Listener {
 			} else {
 				try {
 					Robot robot = new Robot();
-					robot.keyPress(KeyEvent.VK_D);
+					robot.keyRelease(KeyEvent.VK_D);
 				} catch (AWTException e) {
 					e.printStackTrace();
 				}
