@@ -107,7 +107,7 @@ public class LookListener extends Listener {
 							//TODO: it looks left sometimes when you kinda wanna look up, so that's broken, maybe figure out a way to more solidly identify desired vectors and use the hand's direction's difference from there?
 							//if (.25 < hand.direction().getY() && hand.direction().getY() < .5) {
 							//System.out.println("look left?");
-							System.out.println(hand.direction());
+							//System.out.println(hand.direction());
 							return true;
 							//}
 						}
@@ -138,9 +138,10 @@ public class LookListener extends Listener {
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
 				if (hand.isRight()) {
-					System.out.println(hand.direction().getY());
+					//System.out.println(hand.direction().getY());
 					if (hand.direction().getY() > 0) {
 						System.out.println("look up?");
+						//todo
 					}
 				}
 			}
