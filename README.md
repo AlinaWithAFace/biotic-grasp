@@ -28,3 +28,4 @@ If I did eventually get my own leap or another one to work with, there are a cou
 - A config file for users to easily edit in their own control schemes
 - Refactoring because there's a lot of duplicate code
 - Optimizing existing gestures for more consistency
+- Add a video demo showing the various gestures available
