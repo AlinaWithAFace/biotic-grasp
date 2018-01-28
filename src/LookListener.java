@@ -6,10 +6,6 @@ import com.leapmotion.leap.Listener;
 import java.awt.*;
 
 public class LookListener extends Listener {
-	private boolean lookLeftFlag;
-	private boolean lookRightFlag;
-	private boolean lookDownFlag;
-	private boolean lookUpFlag;
 
 	public void onInit(Controller controller) {
 		System.out.println("Initialized");
@@ -32,14 +28,27 @@ public class LookListener extends Listener {
 		Frame frame = controller.frame();
 
 		handleLookLeft(frame);
+		handleLookRight(frame);
 	}
 
 	private int mouseMovementAddition = 1;
 
+	private void handleLookRight(Frame frame) {
+		if (lookRightDetected(frame)) {
+			System.out.println("lookRightDetected");
+			try {
+				Robot robot = new Robot();
+				Point currentMouseLocation = MouseInfo.getPointerInfo().getLocation();
+				robot.mouseMove(currentMouseLocation.x + mouseMovementAddition, currentMouseLocation.y);
+			} catch (AWTException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	private void handleLookLeft(Frame frame) {
 		if (lookLeftDetected(frame)) {
-			System.out.println("move mouse pls");
+			System.out.println("lookLeftDetected");
 			try {
 				Robot robot = new Robot();
 				Point currentMouseLocation = MouseInfo.getPointerInfo().getLocation();
@@ -72,7 +81,7 @@ public class LookListener extends Listener {
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
 				if (hand.isRight()) {
-					if (hand.direction().getZ() >= zBound) {
+					if (hand.direction().getZ() <= zBound) {
 						if (hand.direction().getX() > 0) {
 							//System.out.println("look right?");
 							return true;
