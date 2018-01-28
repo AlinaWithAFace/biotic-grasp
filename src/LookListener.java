@@ -29,9 +29,38 @@ public class LookListener extends Listener {
 
 		handleLookLeft(frame);
 		handleLookRight(frame);
+		//handleLookDown(frame);
+		//handleLookUp(frame);
 	}
 
-	private int mouseMovementAddition = 1;
+	private int mouseMovementAddition = 25;
+	private double zBound = -.8;
+
+	private void handleLookUp(Frame frame) {
+		if (lookUpDetected(frame)) {
+			System.out.println("lookUpDetected");
+			try {
+				Robot robot = new Robot();
+				Point currentMouseLocation = MouseInfo.getPointerInfo().getLocation();
+				robot.mouseMove(currentMouseLocation.x, currentMouseLocation.y + mouseMovementAddition);
+			} catch (AWTException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void handleLookDown(Frame frame) {
+		if (lookDownDetected(frame)) {
+			System.out.println("lookDownDetected");
+			try {
+				Robot robot = new Robot();
+				Point currentMouseLocation = MouseInfo.getPointerInfo().getLocation();
+				robot.mouseMove(currentMouseLocation.x, currentMouseLocation.y - mouseMovementAddition);
+			} catch (AWTException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	private void handleLookRight(Frame frame) {
 		if (lookRightDetected(frame)) {
@@ -58,8 +87,6 @@ public class LookListener extends Listener {
 			}
 		}
 	}
-
-	private double zBound = -.8;
 
 	private boolean lookLeftDetected(Frame frame) {
 		if (frame.hands().count() >= 1) {
@@ -90,6 +117,25 @@ public class LookListener extends Listener {
 				}
 			}
 		}
+		return false;
+	}
+
+	private boolean lookUpDetected(Frame frame) {
+		if (frame.hands().count() >= 1) {
+			for (Hand hand : frame.hands()) {
+				if (hand.isRight()) {
+					System.out.println(hand.direction().getY());
+					if (hand.direction().getY() > 0) {
+						System.out.println("look up?");
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean lookDownDetected(Frame frame) {
+		//todo
 		return false;
 	}
 
