@@ -201,15 +201,15 @@ public class GestureListener extends Listener {
 	private boolean rightBioticGraspGestureDetected(Frame frame) {
 		if ((frame.hands().count() > 0)) {
 			for (Hand hand : frame.hands()) {
-				int fingerUpCount = 0;
-				for (Finger finger : frame.fingers()) {
-					Vector pointDirection = finger.direction();
-					if (pointDirection.getY() > fingerPointingUpNum) {
-						//System.out.println("finger pointing up?");
-						fingerUpCount++;
-					}
-				}
 				if (hand.isRight()) {
+					int fingerUpCount = 0;
+					for (Finger finger : frame.fingers()) {
+						Vector pointDirection = finger.direction();
+						if (pointDirection.getY() > fingerPointingUpNum) {
+							//System.out.println("finger pointing up?");
+							fingerUpCount++;
+						}
+					}
 					if (fingerUpCount >= fingerNum) {
 						//System.out.println("All 5 fingers pointing up : right hand");
 						return true;

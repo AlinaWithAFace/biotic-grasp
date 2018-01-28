@@ -8,11 +8,13 @@ public class Main {
 		// Create a sample gestureListener and controller
 		GestureListener gestureListener = new GestureListener();
 		MovementListener movementListener = new MovementListener();
+		LookListener lookListener = new LookListener();
 		Controller controller = new Controller();
 
 		// Have the listener receive events from the controller
-		controller.addListener(gestureListener);
-		controller.addListener(movementListener);
+		//controller.addListener(gestureListener);
+		//controller.addListener(movementListener);
+		controller.addListener(lookListener);
 
 		// Keep this process running until Enter is pressed
 		System.out.println("Press Enter to quit...");
@@ -24,5 +26,7 @@ public class Main {
 
 		// Remove the sample gestureListener when done
 		controller.removeListener(gestureListener);
+		controller.removeListener(movementListener);
+		controller.removeListener(lookListener);
 	}
 }
