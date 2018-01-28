@@ -17,7 +17,7 @@ It works! I feel like we currently have the technology for a good chunk of crazy
 How the leap API works.
 
 ## What's next for Biotic Grasp
-Depends. I don't personally have a leap available, so unless I get one at some point it'll probably sit on an open source repository on GitHub, or I'll send the link to the streamer who's super into using weird controllers for him to fiddle with it.
+Depends. I don't personally have a leap available, so unless I get one at some point it'll probably sit alone forever, or I'll send the link to the streamer who's super into using weird controllers for him to fiddle with it.
 
 If I did eventually get my own leap or another one to work with, there are a couple things I might change/add:
 
