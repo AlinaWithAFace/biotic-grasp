@@ -5,6 +5,15 @@ import com.leapmotion.leap.Listener;
 
 import java.awt.*;
 
+/*
+todo: make it not incremental
+at the moment no matter how fast you swipe to a side you only look that direction at a set rate,
+make it work with the velocity of a turn or something
+ */
+
+/**
+ * Handles the right hand's direction to move the mouse
+ */
 public class LookListener extends Listener {
 
 	public void onInit(Controller controller) {
@@ -92,10 +101,15 @@ public class LookListener extends Listener {
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
 				if (hand.isRight()) {
+					//System.out.println(hand.direction());
 					if (hand.direction().getZ() >= zBound) {
 						if (hand.direction().getX() < 0) {
+							//TODO: it looks left sometimes when you kinda wanna look up, so that's broken, maybe figure out a way to more solidly identify desired vectors and use the hand's direction's difference from there?
+							//if (.25 < hand.direction().getY() && hand.direction().getY() < .5) {
 							//System.out.println("look left?");
+							System.out.println(hand.direction());
 							return true;
+							//}
 						}
 					}
 				}
@@ -135,7 +149,7 @@ public class LookListener extends Listener {
 	}
 
 	private boolean lookDownDetected(Frame frame) {
-		//todo
+		//todo fix up first then clone it here
 		return false;
 	}
 
