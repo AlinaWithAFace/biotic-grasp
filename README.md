@@ -2,6 +2,9 @@
 Overwatch. Partially the community's [silly projects](https://www.youtube.com/watch?v=_GJ55UIyGvw), and partially one of the newer characters, [Moira](https://playoverwatch.com/en-us/heroes/moira/). It was a sort of perfect blend, with these things on my mind, and then major league hacking had a leap!
 
 ## What it does
+
+![Video Demo](ezgif.com-video-to-gif.gif)
+
 Technically, it just types and moves the mouse by interpreting gestures as key presses or mouse movements. However, they're specifically mapped to common first person shooter keys such as WASD, making it possible to technically play games.
 
 ## How I built it
