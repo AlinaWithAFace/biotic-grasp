@@ -10,6 +10,8 @@ import java.awt.event.KeyEvent;
  */
 public class MovementListener extends Listener {
 
+	public Robot robot;
+	
 	private boolean moveForwardFlag;
 	private boolean moveBackwardFlag;
 	private boolean moveLeftFlag;
@@ -172,14 +174,14 @@ public class MovementListener extends Listener {
 			System.out.println("moveForwardFlag raised " + moveForwardFlag);
 			if (moveForwardFlag) {
 				try {
-					Robot robot = new Robot();
+					robot = new Robot();
 					robot.keyPress(KeyEvent.VK_W);
 				} catch (AWTException e) {
 					e.printStackTrace();
 				}
 			} else {
 				try {
-					Robot robot = new Robot();
+					robot = new Robot();
 					robot.keyRelease(KeyEvent.VK_W);
 				} catch (AWTException e) {
 					e.printStackTrace();
@@ -214,14 +216,14 @@ public class MovementListener extends Listener {
 			System.out.println("moveBackwardFlag raised " + moveBackwardFlag);
 			if (moveBackwardFlag) {
 				try {
-					Robot robot = new Robot();
+					robot = new Robot();
 					robot.keyPress(KeyEvent.VK_S);
 				} catch (AWTException e) {
 					e.printStackTrace();
 				}
 			} else {
 				try {
-					Robot robot = new Robot();
+					robot = new Robot();
 					robot.keyRelease(KeyEvent.VK_S);
 				} catch (AWTException e) {
 					e.printStackTrace();
@@ -255,14 +257,14 @@ public class MovementListener extends Listener {
 			System.out.println("moveLeftFlag raised " + moveLeftFlag);
 			if (moveLeftFlag) {
 				try {
-					Robot robot = new Robot();
+					robot = new Robot();
 					robot.keyPress(KeyEvent.VK_A);
 				} catch (AWTException e) {
 					e.printStackTrace();
 				}
 			} else {
 				try {
-					Robot robot = new Robot();
+					robot = new Robot();
 					robot.keyRelease(KeyEvent.VK_A);
 				} catch (AWTException e) {
 					e.printStackTrace();
@@ -296,14 +298,14 @@ public class MovementListener extends Listener {
 			System.out.println("moveRightFlag raised " + moveRightFlag);
 			if (moveRightFlag) {
 				try {
-					Robot robot = new Robot();
+					robot = new Robot();
 					robot.keyPress(KeyEvent.VK_D);
 				} catch (AWTException e) {
 					e.printStackTrace();
 				}
 			} else {
 				try {
-					Robot robot = new Robot();
+					robot = new Robot();
 					robot.keyRelease(KeyEvent.VK_D);
 				} catch (AWTException e) {
 					e.printStackTrace();
