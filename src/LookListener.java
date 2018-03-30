@@ -16,28 +16,37 @@ public class LookListener extends Listener {
 	
 	private Robot robot;
 	
-	private double rightHandXYAxisMidPoint = .75;
-	private double rightHandXAxisPadding = .035;
 	
-	private double rightHandYAxisMidPoint = .5;
-	private double rightHandYAxisPadding = .035;
+	private double yAxisMidPoint = .5;
+	private double yAxisPadding = .035;
 	
-	private double xBoundaryHigh = rightHandXYAxisMidPoint + rightHandXAxisPadding;
-	private double xBoundaryLow = rightHandXYAxisMidPoint - rightHandXAxisPadding;
-	private double yBoundaryHigh = rightHandYAxisMidPoint + rightHandYAxisPadding;
-	private double yBoundaryLow = rightHandYAxisMidPoint - rightHandYAxisPadding;
+	private double yBoundaryHigh = yAxisMidPoint + yAxisPadding;
+	private double yBoundaryLow = yAxisMidPoint - yAxisPadding;
 	
 	// This range is the interaction box's beginning and end.
 	// In other words, normalizing the hand's point direction will give you a value between 0 and 1
 	// This is that range
-	private double rangeAStart = 0;
-	private double rangeAEnd = 1;
+	private double boxRangeAStart = 0;
+	private double boxRangeAEnd = .5;
+	
+	private double boxRangeBStart = .5;
+	private double boxRangeBEnd = 1;
+	
 	
 	// This is the right half of the interaction box.
 	// We want to keep the right hand in the right half of the box to give the left it's own space,
 	// but we still want full mouse movement, so we map this half to the whole box
-	private double rangeBStart = .5;
-	private double rangeBEnd = 1;
+	// It's divided by a middle safe area, because hands are naturally going to be very shaky, but we want the user
+	// to be able to hold their hand mostly in place in order to keep the mouse in the same place
+	private double xAxisMidPoint = .75;
+	private double xAxisPadding = .05;
+	
+	private double xRangeAStart = .5;
+	private double xRangeAEnd = xAxisMidPoint - xAxisPadding;
+	
+	private double xRangeBStart = xAxisMidPoint + xAxisPadding;
+	private double xRangeBEnd = 1;
+	
 	
 	public void onInit(Controller controller) {
 		System.out.println("Initialized");
@@ -66,33 +75,54 @@ public class LookListener extends Listener {
 		Frame frame = controller.frame();
 		InteractionBox interactionBox = frame.interactionBox();
 		
+		//TODO: So, it's kind of odd, it skips over the safe zone area, so maybe try having it "skip" into it using the difference?
+		
 		for (Hand hand : frame.hands()) {
 			if (hand.isRight()) {
 				Vector rawHandPos = hand.stabilizedPalmPosition();
 				Vector boxHandPos = interactionBox.normalizePoint(rawHandPos);
 				Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-				MouseInfo.getPointerInfo().getLocation().getX();
+				double mouseX = MouseInfo.getPointerInfo().getLocation().getX();
+				double mouseY = MouseInfo.getPointerInfo().getLocation().getY();
 				
-				if (xBoundaryLow > boxHandPos.getX() | boxHandPos.getX() > xBoundaryHigh) {
-					System.out.print("move the mouse maybe X: ");
-					System.out.println(xBoundaryLow + " | " + boxHandPos.getX() + " | " + xBoundaryHigh);
-					
-					/// Fancy Mathematics to map the right range to the full range, thanks stack overflow
-					double rangeRatio = ((rangeAEnd - rangeAStart) / (rangeBEnd - rangeBStart));
-					double newXPos = ((boxHandPos.getX() - rangeBStart) * rangeRatio + rangeAStart);
+				boolean inRangeA = xRangeAStart < boxHandPos.getX() & boxHandPos.getX() < xRangeAEnd;
+				boolean inRangeB = xRangeBStart < boxHandPos.getX() & boxHandPos.getX() < xRangeBEnd;
+				
+				System.out.println(boxHandPos.getX() + " | " + xRangeAStart + " - " + xRangeAEnd + " | " + inRangeA + " || " + xRangeBStart + " - " + xRangeBEnd + " | " + inRangeB);
+				if (inRangeA) {
+					double rangeRatio = ((boxRangeAEnd - boxRangeAStart) / (xRangeAEnd - xRangeAStart));
+					double newXPos = ((boxHandPos.getX() - xRangeAStart) * rangeRatio + boxRangeAStart);
 					
 					int screenX = (int) (screen.width * newXPos);
-					robot.mouseMove(screenX, (int) MouseInfo.getPointerInfo().getLocation().getY());
-				}
-				if (yBoundaryLow > boxHandPos.getY() | boxHandPos.getY() > yBoundaryHigh) {
-					System.out.print("move the mouse maybe Y: ");
-					System.out.println(yBoundaryLow + " | " + boxHandPos.getY() + " | " + yBoundaryHigh);
+					robot.mouseMove(screenX, (int) mouseY);
 					
-					double newYPos = boxHandPos.getY();
+				} else if (inRangeB) {
+					double rangeRatio = ((boxRangeBEnd - boxRangeBStart) / (xRangeBEnd - xRangeBStart));
+					double newXPos = ((boxHandPos.getX() - xRangeBStart) * rangeRatio + boxRangeBStart);
 					
-					int screenY = (int) (screen.height - screen.height * newYPos);
-					robot.mouseMove((int) MouseInfo.getPointerInfo().getLocation().getX(), screenY);
+					int screenX = (int) (screen.width * newXPos);
+					robot.mouseMove(screenX, (int) mouseY);
 				}
+				
+				
+				// Is the hand in the overall range?
+//				if (xRangeAEnd > boxHandPos.getX() | boxHandPos.getX() > xRangeBStart) {
+////					System.out.print("move the mouse maybe X: ");
+////					System.out.println(xRangeAEnd + " | " + boxHandPos.getX() + " | " + xRangeBStart);
+//
+//					/// Fancy Mathematics to map the right hand's range to the full range, thanks stack overflow
+//
+//				}
+
+//				if (yBoundaryLow > boxHandPos.getY() | boxHandPos.getY() > yBoundaryHigh) {
+//					System.out.print("move the mouse maybe Y: ");
+//					System.out.println(yBoundaryLow + " | " + boxHandPos.getY() + " | " + yBoundaryHigh);
+//
+//					double newYPos = boxHandPos.getY();
+//
+//					int screenY = (int) (screen.height - screen.height * newYPos);
+//					robot.mouseMove((int) mouseX, screenY);
+//				}
 			}
 		}
 	}

@@ -33,7 +33,6 @@ Depends. I don't personally have a leap available, so unless I get one at some p
 If I did get my own leap or another one to work with, there are a couple things I might change/add:
 
 - Looking around via the right hand might take into account the hand's velocity for faster, more responsive turns.
-- Getting looking up and down to work proerly would be nice
 - More gestures for other common keys such as shift (for dashing/sprinting), ctrl (for crouching), and space (for jumping). Shift might be pointing all of your fingers backwards, as if you're swimming through the air. Crouching might work by positioning your hands below a vertical dead zone, and jumping might be positioning your hands above it.
 - Refactoring because there's a lot of duplicate code
 - Gestures for specific-to-Overwatch keys that trigger "hello", "thank you", "group up", and other communication hotkeys.
