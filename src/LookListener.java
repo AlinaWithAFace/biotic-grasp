@@ -31,6 +31,20 @@ public class LookListener extends Listener {
 	private double yRightRangeStart = 0;
 	private double yRightRangeEnd = 1;
 	
+	// The screen size, we only map the hand's direction to a portion of the screen, because you really only need some of it for a FPS
+	private Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+	private int xScreenMid = screen.width / 2;
+	private int xBuffer = screen.width / 6;
+	private int xScreenMin = xScreenMid - xBuffer;
+	private int xScreenMax = xScreenMid + xBuffer;
+	private int xScreenDiff = xScreenMax - xScreenMin;
+	
+	private int yScreenMid = screen.height / 2;
+	private int yBuffer = screen.height / 6;
+	private int yScreenMin = yScreenMid - yBuffer;
+	private int yScreenMax = yScreenMid + yBuffer;
+	private int yScreenDiff = yScreenMax - yScreenMin;
+	
 	// The ratio between the ranges, i.e. the thing used for mapping from on range to the other
 	private double rangeRatio = ((boxRangeEnd - boxRangeStart) / (xRightRangeEnd - xRightRangeStart));
 	
@@ -61,36 +75,43 @@ public class LookListener extends Listener {
 		Frame frame = controller.frame();
 		InteractionBox interactionBox = frame.interactionBox();
 		
-		// TODO: I'm not really sure how to make this smooth out more, currently it maps 1:1 (ish) from your hand's
-		// position to the mouse, but because hands are super shaky because human, this causes a lot of unnecessary
-		// micro-corrections in game leading to hyper sensitivity, especially when Overwatch moves your mouse back to
-		// the center of the screen. Maybe try some sort of acceleration based mouse movement? Figure out how you'd
-		// actually like it to work, safe zones don't work here
 		
 		for (Hand hand : frame.hands()) {
 			if (hand.isRight()) {
-				Vector rawHandPos = hand.stabilizedPalmPosition();
-				Vector boxHandPos = interactionBox.normalizePoint(rawHandPos);
-				Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-				double newX = MouseInfo.getPointerInfo().getLocation().getX();
-				double newY = MouseInfo.getPointerInfo().getLocation().getY();
-				
-				boolean xInRange = xRightRangeStart < boxHandPos.getX() & boxHandPos.getX() < xRightRangeEnd;
-				boolean yInRange = yRightRangeStart < boxHandPos.getY() & boxHandPos.getY() < yRightRangeEnd;
-				
-				// Is the hand in the overall range?
-				if (xInRange) {
-					/// Fancy Mathematics to map the right hand's range to the full range, thanks stack overflow
-					double newXPos = ((boxHandPos.getX() - xRightRangeStart) * rangeRatio + boxRangeStart);
-					newX = (int) (screen.width * newXPos);
-				}
-				
-				if (yInRange) {
-					double newYPos = boxHandPos.getY();
-					newY = (int) (screen.height - screen.height * newYPos);
-				}
-				robot.mouseMove((int) newX, (int) newY);
+				handleHand(hand, interactionBox);
 			}
 		}
 	}
+	
+	/**
+	 * Takes in the left hand and maps its direction to the mouse on screen
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 */
+	private void handleHand(Hand hand, InteractionBox interactionBox) {
+		Vector rawHandPos = hand.stabilizedPalmPosition();
+		Vector boxHandPos = interactionBox.normalizePoint(rawHandPos);
+		double newX = MouseInfo.getPointerInfo().getLocation().getX();
+		double newY = MouseInfo.getPointerInfo().getLocation().getY();
+		
+		boolean xInRange = xRightRangeStart < boxHandPos.getX() & boxHandPos.getX() < xRightRangeEnd;
+		boolean yInRange = yRightRangeStart < boxHandPos.getY() & boxHandPos.getY() < yRightRangeEnd;
+		
+		// Is the hand in the overall range?
+		if (xInRange) {
+			/// Fancy Mathematics to map the right hand's range to the full range, thanks stack overflow
+			double newXPos = ((boxHandPos.getX() - xRightRangeStart) * rangeRatio + boxRangeStart);
+			newX = (int) ((newXPos * xScreenDiff) + xScreenMin);
+			
+		}
+		
+		if (yInRange) {
+			double newYPos = boxHandPos.getY();
+			newY = (int) (screen.height - (yScreenDiff * newYPos + yScreenMin));
+		}
+		System.out.printf("%d < %f > %d | %d < %f > %d\n", xScreenMin, newX, xScreenMax, yScreenMin, newY, yScreenMax);
+		robot.mouseMove((int) newX, (int) newY);
+	}
+	
 }

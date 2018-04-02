@@ -12,8 +12,8 @@ public class Main {
 		Controller controller = new Controller();
 		
 		// Have the listener receive events from the controller
-		//controller.addListener(gestureListener);
-		//controller.addListener(movementListener);
+		controller.addListener(gestureListener);
+		controller.addListener(movementListener);
 		controller.addListener(lookListener);
 		
 		// Keep this process running until Enter is pressed
