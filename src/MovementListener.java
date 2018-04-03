@@ -4,6 +4,7 @@ import com.leapmotion.leap.Frame;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
+// TODO: Add crouching and jumping behaviors, probably using the y axis on the left hand
 
 /**
  * Handles WASD movement using the left hand
@@ -19,7 +20,7 @@ public class MovementListener extends Listener {
 	
 	private double leftHandZAxisMidPoint = .5;
 	private double leftHandXAxisMidPoint = .25;
-	private double leftHandXZAxisPadding = .18;
+	private double leftHandXZAxisPadding = .20;
 	
 	public void onInit(Controller controller) {
 		System.out.println("Initialized");
@@ -46,7 +47,6 @@ public class MovementListener extends Listener {
 		handleBackward(frame, interactionBox);
 		handleRight(frame, interactionBox);
 		handleLeft(frame, interactionBox);
-		
 	}
 	
 	/**
@@ -89,7 +89,6 @@ public class MovementListener extends Listener {
 			for (Hand hand : frame.hands()) {
 				if (hand.isLeft()) {
 					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-					
 					if (palmPosition.getZ() >= zMax) {
 						//System.out.println(" move backward maybe");
 						return true;
@@ -171,7 +170,7 @@ public class MovementListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			System.out.println("moveForwardFlag raised " + moveForwardFlag);
+			//System.out.println("moveForwardFlag raised " + moveForwardFlag);
 			if (moveForwardFlag) {
 				try {
 					robot = new Robot();
@@ -187,7 +186,6 @@ public class MovementListener extends Listener {
 					e.printStackTrace();
 				}
 			}
-			
 		}
 	}
 	
@@ -213,7 +211,7 @@ public class MovementListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			System.out.println("moveBackwardFlag raised " + moveBackwardFlag);
+			//System.out.println("moveBackwardFlag raised " + moveBackwardFlag);
 			if (moveBackwardFlag) {
 				try {
 					robot = new Robot();
@@ -254,7 +252,7 @@ public class MovementListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			System.out.println("moveLeftFlag raised " + moveLeftFlag);
+			//System.out.println("moveLeftFlag raised " + moveLeftFlag);
 			if (moveLeftFlag) {
 				try {
 					robot = new Robot();
@@ -271,7 +269,6 @@ public class MovementListener extends Listener {
 				}
 			}
 		}
-		
 	}
 	
 	/**
@@ -295,7 +292,7 @@ public class MovementListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			System.out.println("moveRightFlag raised " + moveRightFlag);
+			//System.out.println("moveRightFlag raised " + moveRightFlag);
 			if (moveRightFlag) {
 				try {
 					robot = new Robot();
@@ -312,6 +309,5 @@ public class MovementListener extends Listener {
 				}
 			}
 		}
-		
 	}
 }

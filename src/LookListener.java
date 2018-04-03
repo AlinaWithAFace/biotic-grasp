@@ -3,12 +3,6 @@ import com.leapmotion.leap.Frame;
 
 import java.awt.*;
 
-/*
-todo: make it not incremental
-at the moment no matter how fast you swipe to a side you only look that direction at a set rate,
-make it work with the velocity of a turn or something
- */
-
 /**
  * Handles the right hand's direction to move the mouse
  */
@@ -75,7 +69,6 @@ public class LookListener extends Listener {
 		Frame frame = controller.frame();
 		InteractionBox interactionBox = frame.interactionBox();
 		
-		
 		for (Hand hand : frame.hands()) {
 			if (hand.isRight()) {
 				handleHand(hand, interactionBox);
@@ -84,7 +77,7 @@ public class LookListener extends Listener {
 	}
 	
 	/**
-	 * Takes in the left hand and maps its direction to the mouse on screen
+	 * Takes in the right hand and maps its direction to the mouse on screen
 	 *
 	 * @param hand
 	 * @param interactionBox
@@ -103,14 +96,13 @@ public class LookListener extends Listener {
 			/// Fancy Mathematics to map the right hand's range to the full range, thanks stack overflow
 			double newXPos = ((boxHandPos.getX() - xRightRangeStart) * rangeRatio + boxRangeStart);
 			newX = (int) ((newXPos * xScreenDiff) + xScreenMin);
-			
 		}
 		
 		if (yInRange) {
 			double newYPos = boxHandPos.getY();
 			newY = (int) (screen.height - (yScreenDiff * newYPos + yScreenMin));
 		}
-		System.out.printf("%d < %f > %d | %d < %f > %d\n", xScreenMin, newX, xScreenMax, yScreenMin, newY, yScreenMax);
+		//System.out.printf("%d < %f > %d | %d < %f > %d\n", xScreenMin, newX, xScreenMax, yScreenMin, newY, yScreenMax);
 		robot.mouseMove((int) newX, (int) newY);
 	}
 	

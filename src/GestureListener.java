@@ -14,36 +14,36 @@ public class GestureListener extends Listener {
 	private boolean leftBioticGraspFlag;
 	private boolean bioticOrbFlag;
 	private boolean coalescenceFlag;
-
+	
 	private double fingerPointingUpNum = .5;
 	private int fingerNum = 5;
-
+	
 	public void onInit(Controller controller) {
 		System.out.println("Initialized");
 	}
-
+	
 	public void onConnect(Controller controller) {
 		System.out.println("Connected");
 	}
-
+	
 	public void onDisconnect(Controller controller) {
 		//Note: not dispatched when running in a debugger.
 		System.out.println("Disconnected");
 	}
-
+	
 	public void onExit(Controller controller) {
 		System.out.println("Exited");
 	}
-
+	
 	public void onFrame(Controller controller) {
 		Frame frame = controller.frame();
-
+		
 		handleCoalescenceGesture(frame);
 		handleBioticOrbGesture(frame);
 		handleRightBioticGraspGesture(frame);
 		handleLeftBioticGraspGesture(frame);
 	}
-
+	
 	/**
 	 * pressed q if coalescenceGesture is detected
 	 *
@@ -51,7 +51,7 @@ public class GestureListener extends Listener {
 	 */
 	private void handleCoalescenceGesture(Frame frame) {
 		boolean gestureFlag = false;
-
+		
 		if (coalescenceGestureDetected(frame)) {
 			if (!coalescenceFlag) {
 				gestureFlag = true;
@@ -63,9 +63,9 @@ public class GestureListener extends Listener {
 			}
 			coalescenceFlag = false;
 		}
-
+		
 		if (gestureFlag) {
-			System.out.println("coalescenceFlag raised " + coalescenceFlag);
+			//System.out.println("coalescenceFlag raised " + coalescenceFlag);
 			if (coalescenceFlag) {
 				try {
 					Robot robot = new Robot();
@@ -77,7 +77,7 @@ public class GestureListener extends Listener {
 			}
 		}
 	}
-
+	
 	/**
 	 * presses the E button if BioticOrbGesture is detected
 	 *
@@ -85,7 +85,7 @@ public class GestureListener extends Listener {
 	 */
 	private void handleBioticOrbGesture(Frame frame) {
 		boolean gestureFlag = false;
-
+		
 		if (bioticOrbGestureDetected(frame)) {
 			if (!bioticOrbFlag) {
 				gestureFlag = true;
@@ -97,9 +97,9 @@ public class GestureListener extends Listener {
 			}
 			bioticOrbFlag = false;
 		}
-
+		
 		if (gestureFlag) {
-			System.out.println("bioticOrbFlag raised " + bioticOrbFlag);
+			//System.out.println("bioticOrbFlag raised " + bioticOrbFlag);
 			if (bioticOrbFlag) {
 				try {
 					Robot robot = new Robot();
@@ -110,9 +110,8 @@ public class GestureListener extends Listener {
 				}
 			}
 		}
-
 	}
-
+	
 	/**
 	 * Hits the left mouse button if the gesture is detected
 	 *
@@ -120,7 +119,7 @@ public class GestureListener extends Listener {
 	 */
 	private void handleLeftBioticGraspGesture(Frame frame) {
 		boolean gestureFlag = false;
-
+		
 		if (leftBioticGraspGestureDetected(frame)) {
 			if (!leftBioticGraspFlag) {
 				gestureFlag = true;
@@ -132,9 +131,9 @@ public class GestureListener extends Listener {
 			}
 			leftBioticGraspFlag = false;
 		}
-
+		
 		if (gestureFlag) {
-			System.out.println("leftBioticGraspFlag raised " + leftBioticGraspFlag);
+			//System.out.println("leftBioticGraspFlag raised " + leftBioticGraspFlag);
 			if (leftBioticGraspFlag) {
 				try {
 					Robot robot = new Robot();
@@ -152,13 +151,13 @@ public class GestureListener extends Listener {
 			}
 		}
 	}
-
+	
 	/**
 	 * Hits the right mouse button if the gesture is detected
 	 */
 	private void handleRightBioticGraspGesture(Frame frame) {
 		boolean gestureFlag = false;
-
+		
 		if (rightBioticGraspGestureDetected(frame)) {
 			if (!rightBioticGraspFlag) {
 				gestureFlag = true;
@@ -170,14 +169,13 @@ public class GestureListener extends Listener {
 			}
 			rightBioticGraspFlag = false;
 		}
-
+		
 		if (gestureFlag) {
-			System.out.println("rightBioticGraspFlag raised: " + rightBioticGraspFlag);
+			//System.out.println("rightBioticGraspFlag raised: " + rightBioticGraspFlag);
 			if (rightBioticGraspFlag) {
 				try {
 					Robot robot = new Robot();
 					robot.mousePress(InputEvent.BUTTON3_MASK);
-					//robot.keyPress(KeyEvent.VK_Q);
 				} catch (AWTException e) {
 					e.printStackTrace();
 				}
@@ -191,7 +189,7 @@ public class GestureListener extends Listener {
 			}
 		}
 	}
-
+	
 	/**
 	 * detects if 5 fingers on the right hand are pointing up
 	 *
@@ -221,7 +219,7 @@ public class GestureListener extends Listener {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * detects if 5 fingers on the left hand are pointing up
 	 *
@@ -248,7 +246,7 @@ public class GestureListener extends Listener {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * detects whether all fingers of both hands are forward (think a T-Rex)
 	 *
@@ -257,18 +255,20 @@ public class GestureListener extends Listener {
 	 */
 	private boolean bioticOrbGestureDetected(Frame frame) {
 		double bioticOrbFingerDirection = -.8;
-		int bioticOrbFingerCount = 10;
-
+		int bioticOrbFingerCount = 8;
+		
 		if (frame.hands().count() >= 2) {
 			int fingerUpCount = 0;
 			for (Hand hand : frame.hands()) {
 				//System.out.println("hand");
 				for (Finger finger : hand.fingers()) {
-					Vector pointDirection = finger.direction();
-					//System.out.println("bioticOrbGestureDetected " + pointDirection.getZ());
-
-					if (pointDirection.getZ() <= bioticOrbFingerDirection) {
-						fingerUpCount++;
+					if (finger.type() != Finger.Type.TYPE_THUMB) {
+						Vector pointDirection = finger.direction();
+						//System.out.println("bioticOrbGestureDetected " + pointDirection.getZ());
+						
+						if (pointDirection.getZ() <= bioticOrbFingerDirection) {
+							fingerUpCount++;
+						}
 					}
 				}
 			}
@@ -279,7 +279,7 @@ public class GestureListener extends Listener {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * detects whether the left hand's 4 fingers are up and the thumb is to the right
 	 *
@@ -290,7 +290,7 @@ public class GestureListener extends Listener {
 		double coalescenceFingerDirection = .8;
 		int coalescenceFingerCount = 4;
 		boolean thumbPass = false;
-
+		
 		if (frame.hands().count() >= 1) {
 			for (Hand hand : frame.hands()) {
 				if (hand.isLeft()) {
@@ -298,7 +298,7 @@ public class GestureListener extends Listener {
 					//System.out.println("hand");
 					for (Finger finger : hand.fingers()) {
 						Vector pointDirection = finger.direction();
-
+						
 						if (finger.type() != Finger.Type.TYPE_THUMB) {
 							if (pointDirection.getY() > coalescenceFingerDirection) {
 								fingerUpCount++;
