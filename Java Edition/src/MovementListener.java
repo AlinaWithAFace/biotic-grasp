@@ -50,101 +50,58 @@ public class MovementListener extends Listener {
 		Frame frame = controller.frame();
 		InteractionBox interactionBox = frame.interactionBox();
 		
-		handleForward(frame, interactionBox);
-		handleBackward(frame, interactionBox);
-		handleRight(frame, interactionBox);
-		handleLeft(frame, interactionBox);
-	}
-	
-	/**
-	 * Given booleans to read, try to push a button based on whether or not it's true or false.
-	 * For example, if the gesture has changed from before and the related action key is true press the key,
-	 * but if it's false, release the key
-	 *
-	 * @param gestureChangedFlag
-	 * @param performMovementFlag
-	 * @param keyEventCode
-	 */
-	private void tryToPressAButton(boolean gestureChangedFlag, boolean performMovementFlag, int keyEventCode) {
-		if (gestureChangedFlag) {
-			if (performMovementFlag) {
-				robot.keyPress(keyEventCode);
-			} else {
-				robot.keyRelease(keyEventCode);
+		if (frame.hands().count() >= 1) {
+			for (Hand hand : frame.hands()) {
+				if (hand.isLeft()) {
+					handleForward(hand, interactionBox);
+					handleLeft(hand, interactionBox);
+					handleBackward(hand, interactionBox);
+					handleRight(hand, interactionBox);
+					handleJump(hand, interactionBox);
+					handleCrouch(hand, interactionBox);
+				}
 			}
 		}
 	}
+	
+	//region Detectors, they look at a given hand to see if the user is trying to perform an action
+	//---------------------------------------------------------------------------------------
 	
 	/**
 	 * detects if the palm is farther to you relative to the interaction box
 	 *
-	 * @param frame
+	 * @param hand
 	 * @param interactionBox
 	 * @return
 	 */
-	private boolean forwardMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
+	private boolean forwardMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
 		double zMin = leftHandZAxisMidPoint - leftHandXZAxisPadding;
 		
-		if (frame.hands().count() >= 1) {
-			for (Hand hand : frame.hands()) {
-				if (hand.isLeft()) {
-					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-					//System.out.println(palmPosition);
-					
-					if (palmPosition.getZ() <= zMin) {
-						//System.out.println(" move forward maybe");
-						return true;
-					}
-				}
-			}
+		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+		//System.out.println(palmPosition);
+		
+		if (palmPosition.getZ() <= zMin) {
+			//System.out.println(" move forward maybe");
+			return true;
 		}
+		
 		return false;
 	}
 	
 	/**
 	 * detects if the palm is closeish to you relative to the interaction box
 	 *
-	 * @param frame
+	 * @param hand
 	 * @param interactionBox
 	 * @return
 	 */
-	private boolean backwardMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
+	private boolean backwardMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
 		double zMax = leftHandZAxisMidPoint + leftHandXZAxisPadding;
 		
-		if (frame.hands().count() >= 1) {
-			for (Hand hand : frame.hands()) {
-				if (hand.isLeft()) {
-					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-					if (palmPosition.getZ() >= zMax) {
-						//System.out.println(" move backward maybe");
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * detects if the left hand is over the right side of the left side (because that makes sense)
-	 *
-	 * @param frame
-	 * @param interactionBox
-	 * @return
-	 */
-	private boolean rightMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
-		double xBoundary = leftHandXAxisMidPoint + leftHandXZAxisPadding;
-		
-		if (frame.hands().count() >= 1) {
-			for (Hand hand : frame.hands()) {
-				if (hand.isLeft()) {
-					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-					if (palmPosition.getX() >= xBoundary) {
-						//System.out.println("move right maybe");
-						return true;
-					}
-				}
-			}
+		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+		if (palmPosition.getZ() >= zMax) {
+			//System.out.println(" move backward maybe");
+			return true;
 		}
 		return false;
 	}
@@ -152,183 +109,74 @@ public class MovementListener extends Listener {
 	/**
 	 * detects if the left hand is over in the leftmost range
 	 *
-	 * @param frame
+	 * @param hand
 	 * @param interactionBox
 	 * @return
 	 */
-	private boolean leftMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
+	private boolean leftMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
 		double xBoundary = leftHandXAxisMidPoint - leftHandXZAxisPadding;
 		
-		if (frame.hands().count() >= 1) {
-			for (Hand hand : frame.hands()) {
-				if (hand.isLeft()) {
-					Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-					//System.out.println(palmPosition.getX());
-					if (palmPosition.getX() <= xBoundary) {
-						//System.out.println("move left maybe");
-						return true;
-					}
-				}
-			}
+		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+		//System.out.println(palmPosition.getX());
+		if (palmPosition.getX() <= xBoundary) {
+			//System.out.println("move left maybe");
+			return true;
 		}
 		return false;
 	}
 	
-	private boolean jumpMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
+	/**
+	 * detects if the left hand is over the right side of the left side (because that makes sense)
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 * @return
+	 */
+	private boolean rightMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
+		double xBoundary = leftHandXAxisMidPoint + leftHandXZAxisPadding;
+		
+		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+		if (palmPosition.getX() >= xBoundary) {
+			//System.out.println("move right maybe");
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Check if the given hand is hovering relatively high in order to trigger a jump
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 * @return
+	 */
+	private boolean jumpMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
 		//todo
 		return false;
 	}
 	
-	private boolean crouchMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
+	/**
+	 * Check if a given hand is hovering relatively low in order to trigger crouching
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 * @return
+	 */
+	private boolean crouchMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
 		//todo
 		return false;
 	}
 	
-	
-	/**
-	 * pushes the w key if forwardMovementHoverDetected is true
-	 *
-	 * @param frame
-	 * @param interactionBox
-	 */
-	private void handleForward(Frame frame, InteractionBox interactionBox) {
-		boolean gestureFlag;
-		//gestureFlag = detectGestureChange(forwardMovementHoverDetected(frame, interactionBox), MovementFlags.moveForwardFlag);
-		
-		gestureFlag = false;
-		if (forwardMovementHoverDetected(frame, interactionBox)) {
-			if (!moveForwardFlag) {
-				gestureFlag = true;
-			}
-			moveForwardFlag = true;
-		} else {
-			if (moveForwardFlag) {
-				gestureFlag = true;
-			}
-			moveForwardFlag = false;
-		}
-		
-		tryToPressAButton(gestureFlag, moveForwardFlag, KeyEvent.VK_W);
-	}
-	
-	/**
-	 *
-	 * @param frame
-	 * @param interactionBox
-	 */
-	private void handleCrouch(Frame frame, InteractionBox interactionBox) {
-		boolean gestureFlag = false;
-		
-		if (crouchMovementHoverDetected(frame, interactionBox)) {
-			if (!crouchFlag) {
-				gestureFlag = true;
-			}
-			crouchFlag = true;
-		} else {
-			if (crouchFlag) {
-				gestureFlag = true;
-			}
-			crouchFlag = false;
-		}
-		
-		tryToPressAButton(gestureFlag, crouchFlag, KeyEvent.CTRL_DOWN_MASK);
-		//TODO: test
-	}
-	
-	private void handleJump(Frame frame, InteractionBox interactionBox) {
-		boolean gestureFlag = false;
-		
-		if (jumpMovementHoverDetected(frame, interactionBox)) {
-			if (!jumpingFlag) {
-				gestureFlag = true;
-			}
-			jumpingFlag = true;
-		} else {
-			if (jumpingFlag) {
-				gestureFlag = true;
-			}
-			jumpingFlag = false;
-		}
-		
-		tryToPressAButton(gestureFlag, jumpingFlag, KeyEvent.VK_SPACE);
-		//TODO: test
-	}
-	
-	
-	/**
-	 * pushes the s button if backwardMovementHoverDetected is true
-	 *
-	 * @param frame
-	 * @param interactionBox
-	 */
-	private void handleBackward(Frame frame, InteractionBox interactionBox) {
-		boolean gestureFlag = false;
-		
-		if (backwardMovementHoverDetected(frame, interactionBox)) {
-			if (!moveBackwardFlag) {
-				gestureFlag = true;
-			}
-			moveBackwardFlag = true;
-		} else {
-			if (moveBackwardFlag) {
-				gestureFlag = true;
-			}
-			moveBackwardFlag = false;
-		}
-		
-		tryToPressAButton(gestureFlag, moveBackwardFlag, KeyEvent.VK_S);
-	}
-	
-	
-	/**
-	 * pushes the a key if leftMovementHoverDetected is true
-	 *
-	 * @param frame
-	 * @param interactionBox
-	 */
-	private void handleLeft(Frame frame, InteractionBox interactionBox) {
-		boolean gestureFlag = false;
-		
-		if (leftMovementHoverDetected(frame, interactionBox)) {
-			if (!moveLeftFlag) {
-				gestureFlag = true;
-			}
-			moveLeftFlag = true;
-		} else {
-			if (moveLeftFlag) {
-				gestureFlag = true;
-			}
-			moveLeftFlag = false;
-		}
-		
-		tryToPressAButton(gestureFlag, moveLeftFlag, KeyEvent.VK_A);
-	}
-	
-	/**
-	 * pushes the d key if rightMovementHoverDetected is true
-	 *
-	 * @param frame
-	 * @param interactionBox
-	 */
-	private void handleRight(Frame frame, InteractionBox interactionBox) {
-		boolean gestureFlag = false;
-		if (rightMovementHoverDetected(frame, interactionBox)) {
-			if (!moveRightFlag) {
-				gestureFlag = true;
-			}
-			moveRightFlag = true;
-		} else {
-			if (moveRightFlag) {
-				gestureFlag = true;
-			}
-			moveRightFlag = false;
-		}
-		
-		tryToPressAButton(gestureFlag, moveRightFlag, KeyEvent.VK_D);
-	}
-}
-
-
+//	/**
+//	 * TODO
+//	 * This is kind of broken, but I want it to ideally return whether or not the gesture has changed from before or not
+//	 * and modify a given boolean that gets read for movement later on,
+//	 * but turns out java doesn't like anything other than references
+//	 *
+//	 * @param gestureDetected
+//	 * @param actionOccurring
+//	 * @return
+//	 */
 //	private boolean detectGestureChange(boolean gestureDetected, boolean actionOccurring) {
 //		boolean gestureChangedFlag = false;
 //
@@ -344,5 +192,174 @@ public class MovementListener extends Listener {
 //			actionOccurring = false;
 //		}
 //		return gestureChangedFlag;
-//
 //	}
+	//---------------------------------------------------------------------------------------
+	//endregion
+	
+	//region Handlers, they take the checks from the detectors and perform the corresponding operation based on it
+	//---------------------------------------------------------------------------------------
+	
+	/**
+	 * pushes the w key if forwardMovementHoverDetected is true
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 */
+	private void handleForward(Hand hand, InteractionBox interactionBox) {
+		boolean gestureFlag;
+		//gestureFlag = detectGestureChange(forwardMovementHoverDetected(frame, interactionBox), MovementFlags.moveForwardFlag);
+		
+		gestureFlag = false;
+		if (forwardMovementHoverDetected(hand, interactionBox)) {
+			if (!moveForwardFlag) {
+				gestureFlag = true;
+			}
+			moveForwardFlag = true;
+		} else {
+			if (moveForwardFlag) {
+				gestureFlag = true;
+			}
+			moveForwardFlag = false;
+		}
+		
+		tryToPressAButton(gestureFlag && moveForwardFlag, KeyEvent.VK_W);
+	}
+	
+	/**
+	 * pushes the s button if backwardMovementHoverDetected is true
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 */
+	private void handleBackward(Hand hand, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+		
+		if (backwardMovementHoverDetected(hand, interactionBox)) {
+			if (!moveBackwardFlag) {
+				gestureFlag = true;
+			}
+			moveBackwardFlag = true;
+		} else {
+			if (moveBackwardFlag) {
+				gestureFlag = true;
+			}
+			moveBackwardFlag = false;
+		}
+		
+		tryToPressAButton(gestureFlag && moveBackwardFlag, KeyEvent.VK_S);
+	}
+	
+	/**
+	 * pushes the a key if leftMovementHoverDetected is true
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 */
+	private void handleLeft(Hand hand, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+		
+		if (leftMovementHoverDetected(hand, interactionBox)) {
+			if (!moveLeftFlag) {
+				gestureFlag = true;
+			}
+			moveLeftFlag = true;
+		} else {
+			if (moveLeftFlag) {
+				gestureFlag = true;
+			}
+			moveLeftFlag = false;
+		}
+		
+		tryToPressAButton(gestureFlag && moveLeftFlag, KeyEvent.VK_A);
+	}
+	
+	/**
+	 * pushes the d key if rightMovementHoverDetected is true
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 */
+	private void handleRight(Hand hand, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+		if (rightMovementHoverDetected(hand, interactionBox)) {
+			if (!moveRightFlag) {
+				gestureFlag = true;
+			}
+			moveRightFlag = true;
+		} else {
+			if (moveRightFlag) {
+				gestureFlag = true;
+			}
+			moveRightFlag = false;
+		}
+		
+		tryToPressAButton(gestureFlag && moveRightFlag, KeyEvent.VK_D);
+	}
+	
+	/**
+	 * Hit the space key
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 */
+	private void handleJump(Hand hand, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+		
+		if (jumpMovementHoverDetected(hand, interactionBox)) {
+			if (!jumpingFlag) {
+				gestureFlag = true;
+			}
+			jumpingFlag = true;
+		} else {
+			if (jumpingFlag) {
+				gestureFlag = true;
+			}
+			jumpingFlag = false;
+		}
+		
+		tryToPressAButton(gestureFlag && jumpingFlag, KeyEvent.VK_SPACE);
+		//TODO: test
+	}
+	
+	/**
+	 * @param hand
+	 * @param interactionBox
+	 */
+	private void handleCrouch(Hand hand, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+		
+		if (crouchMovementHoverDetected(hand, interactionBox)) {
+			if (!crouchFlag) {
+				gestureFlag = true;
+			}
+			crouchFlag = true;
+		} else {
+			if (crouchFlag) {
+				gestureFlag = true;
+			}
+			crouchFlag = false;
+		}
+		
+		tryToPressAButton(gestureFlag && crouchFlag, KeyEvent.CTRL_DOWN_MASK);
+		//TODO: test
+	}
+	
+	/**
+	 * Given booleans to read, try to push a button based on whether or not it's true or false.
+	 * For example, if the gesture has changed from before and the related action key is true press the key,
+	 * but if it's false, release the key
+	 *
+	 * @param performMovementFlag
+	 * @param keyEventCode
+	 */
+	private void tryToPressAButton(boolean performMovementFlag, int keyEventCode) {
+		if (performMovementFlag) {
+			robot.keyPress(keyEventCode);
+		} else {
+			robot.keyRelease(keyEventCode);
+		}
+	}
+	//---------------------------------------------------------------------------------------
+	//endregion
+	
+}
