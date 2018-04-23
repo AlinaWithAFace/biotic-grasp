@@ -1,10 +1,7 @@
 import com.leapmotion.leap.*;
 import com.leapmotion.leap.Frame;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
-
-// TODO: Add crouching and jumping behaviors, probably using the y axis on the left hand
 
 /**
  * Handles WASD movement using the left hand
@@ -17,7 +14,6 @@ public class MovementListener extends Listener {
 	static boolean moveRightFlag;
 	static boolean jumpingFlag;
 	static boolean crouchFlag;
-	public Robot robot;
 	
 	private double zMid = .5;
 	private double zPadding = .20;
@@ -142,7 +138,6 @@ public class MovementListener extends Listener {
 		double yMax = yMid + yPadding;
 		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
 		return palmPosition.getY() >= yMax;
-		
 	}
 
 //	/**
@@ -200,9 +195,8 @@ public class MovementListener extends Listener {
 			moveForwardFlag = false;
 		}
 		if (gestureFlag) {
-			tryToPressAButton(moveForwardFlag, KeyEvent.VK_W);
+			Utilities.tryToPressAButton(moveForwardFlag, KeyEvent.VK_W);
 		}
-		
 	}
 	
 	/**
@@ -226,7 +220,7 @@ public class MovementListener extends Listener {
 			moveBackwardFlag = false;
 		}
 		if (gestureFlag) {
-			tryToPressAButton(moveBackwardFlag, KeyEvent.VK_S);
+			Utilities.tryToPressAButton(moveBackwardFlag, KeyEvent.VK_S);
 		}
 	}
 	
@@ -252,7 +246,7 @@ public class MovementListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			tryToPressAButton(moveLeftFlag, KeyEvent.VK_A);
+			Utilities.tryToPressAButton(moveLeftFlag, KeyEvent.VK_A);
 		}
 	}
 	
@@ -277,9 +271,8 @@ public class MovementListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			tryToPressAButton(moveRightFlag, KeyEvent.VK_D);
+			Utilities.tryToPressAButton(moveRightFlag, KeyEvent.VK_D);
 		}
-		
 	}
 	
 	/**
@@ -302,7 +295,7 @@ public class MovementListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			tryToPressAButton(crouchFlag, KeyEvent.CTRL_DOWN_MASK);
+			Utilities.tryToPressAButton(crouchFlag, KeyEvent.CTRL_DOWN_MASK);
 		}
 	}
 	
@@ -328,31 +321,10 @@ public class MovementListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			tryToPressAButton(jumpingFlag, KeyEvent.VK_SPACE);
+			Utilities.tryToPressAButton(jumpingFlag, KeyEvent.VK_SPACE);
 		}
 	}
 	
-	/**
-	 * Given booleans to read, try to push a button based on whether or not it's true or false.
-	 * For example, if the gesture has changed from before and the related action key is true press the key,
-	 * but if it's false, release the key
-	 *
-	 * @param performMovementFlag
-	 * @param keyEventCode
-	 */
-	private void tryToPressAButton(boolean performMovementFlag, int keyEventCode) {
-		try {
-			robot = new Robot();
-		} catch (AWTException e) {
-			e.printStackTrace();
-		}
-		
-		if (performMovementFlag) {
-			robot.keyPress(keyEventCode);
-		} else {
-			robot.keyRelease(keyEventCode);
-		}
-	}
 	//---------------------------------------------------------------------------------------
 	//endregion
 	

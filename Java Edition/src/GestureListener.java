@@ -1,7 +1,6 @@
 import com.leapmotion.leap.*;
 import com.leapmotion.leap.Frame;
 
-import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
@@ -37,22 +36,30 @@ public class GestureListener extends Listener {
 	
 	public void onFrame(Controller controller) {
 		Frame frame = controller.frame();
+		HandList hands = frame.hands();
 		
-		handleCoalescenceGesture(frame);
-		handleBioticOrbGesture(frame);
-		handleRightBioticGraspGesture(frame);
-		handleLeftBioticGraspGesture(frame);
+		if (hands.count() >= 1) {
+			handleBioticOrbGesture(hands);
+			for (Hand hand : hands) {
+				if (hand.isLeft()) {
+					handleLeftBioticGraspGesture(hand);
+					handleCoalescenceGesture(hand);
+				} else if (hand.isRight()) {
+					handleRightBioticGraspGesture(hand);
+				}
+			}
+		}
 	}
 	
 	/**
 	 * pressed q if coalescenceGesture is detected
 	 *
-	 * @param frame
+	 * @param hand
 	 */
-	private void handleCoalescenceGesture(Frame frame) {
+	private void handleCoalescenceGesture(Hand hand) {
 		boolean gestureFlag = false;
 		
-		if (coalescenceGestureDetected(frame)) {
+		if (coalescenceGestureDetected(hand)) {
 			if (!coalescenceFlag) {
 				gestureFlag = true;
 			}
@@ -65,28 +72,19 @@ public class GestureListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			//System.out.println("coalescenceFlag raised " + coalescenceFlag);
-			if (coalescenceFlag) {
-				try {
-					Robot robot = new Robot();
-					robot.keyPress(KeyEvent.VK_Q);
-					robot.keyRelease(KeyEvent.VK_Q);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			}
+			Utilities.tryToTapAButton(coalescenceFlag, KeyEvent.VK_Q);
 		}
 	}
 	
 	/**
 	 * presses the E button if BioticOrbGesture is detected
 	 *
-	 * @param frame
+	 * @param hands
 	 */
-	private void handleBioticOrbGesture(Frame frame) {
+	private void handleBioticOrbGesture(HandList hands) {
 		boolean gestureFlag = false;
 		
-		if (bioticOrbGestureDetected(frame)) {
+		if (bioticOrbGestureDetected(hands)) {
 			if (!bioticOrbFlag) {
 				gestureFlag = true;
 			}
@@ -99,28 +97,19 @@ public class GestureListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			//System.out.println("bioticOrbFlag raised " + bioticOrbFlag);
-			if (bioticOrbFlag) {
-				try {
-					Robot robot = new Robot();
-					robot.keyPress(KeyEvent.VK_E);
-					robot.keyRelease(KeyEvent.VK_E);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			}
+			Utilities.tryToTapAButton(bioticOrbFlag, KeyEvent.VK_E);
 		}
 	}
 	
 	/**
 	 * Hits the left mouse button if the gesture is detected
 	 *
-	 * @param frame
+	 * @param hand
 	 */
-	private void handleLeftBioticGraspGesture(Frame frame) {
+	private void handleLeftBioticGraspGesture(Hand hand) {
 		boolean gestureFlag = false;
 		
-		if (leftBioticGraspGestureDetected(frame)) {
+		if (bioticGraspGestureDetected(hand)) {
 			if (!leftBioticGraspFlag) {
 				gestureFlag = true;
 			}
@@ -133,32 +122,19 @@ public class GestureListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			//System.out.println("leftBioticGraspFlag raised " + leftBioticGraspFlag);
-			if (leftBioticGraspFlag) {
-				try {
-					Robot robot = new Robot();
-					robot.mousePress(InputEvent.BUTTON1_MASK);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			} else {
-				try {
-					Robot robot = new Robot();
-					robot.mouseRelease(InputEvent.BUTTON1_MASK);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			}
+			Utilities.tryToPressAButton(leftBioticGraspFlag, InputEvent.BUTTON1_DOWN_MASK);
 		}
 	}
 	
 	/**
 	 * Hits the right mouse button if the gesture is detected
+	 *
+	 * @param hand
 	 */
-	private void handleRightBioticGraspGesture(Frame frame) {
+	private void handleRightBioticGraspGesture(Hand hand) {
 		boolean gestureFlag = false;
 		
-		if (rightBioticGraspGestureDetected(frame)) {
+		if (bioticGraspGestureDetected(hand)) {
 			if (!rightBioticGraspFlag) {
 				gestureFlag = true;
 			}
@@ -171,95 +147,40 @@ public class GestureListener extends Listener {
 		}
 		
 		if (gestureFlag) {
-			//System.out.println("rightBioticGraspFlag raised: " + rightBioticGraspFlag);
-			if (rightBioticGraspFlag) {
-				try {
-					Robot robot = new Robot();
-					robot.mousePress(InputEvent.BUTTON3_MASK);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			} else {
-				try {
-					Robot robot = new Robot();
-					robot.mouseRelease(InputEvent.BUTTON3_MASK);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			}
+			Utilities.tryToPressAButton(rightBioticGraspFlag, InputEvent.BUTTON3_MASK);
 		}
 	}
 	
 	/**
-	 * detects if 5 fingers on the right hand are pointing up
+	 * detects if 5 fingers on the given hand are pointing up
 	 *
-	 * @param frame
+	 * @param hand
 	 * @return
 	 */
-	private boolean rightBioticGraspGestureDetected(Frame frame) {
-		if ((frame.hands().count() > 0)) {
-			for (Hand hand : frame.hands()) {
-				if (hand.isRight()) {
-					int fingerUpCount = 0;
-					for (Finger finger : frame.fingers()) {
-						Vector pointDirection = finger.direction();
-						if (pointDirection.getY() > fingerPointingUpNum) {
-							//System.out.println("finger pointing up?");
-							fingerUpCount++;
-						}
-					}
-					if (fingerUpCount >= fingerNum) {
-						//System.out.println("All 5 fingers pointing up : right hand");
-						return true;
-					}
-				}
-			}
-		} else {
-			return false;
-		}
-		return false;
-	}
-	
-	/**
-	 * detects if 5 fingers on the left hand are pointing up
-	 *
-	 * @param frame
-	 * @return
-	 */
-	private boolean leftBioticGraspGestureDetected(Frame frame) {
-		if ((frame.hands().count() > 0)) {
-			for (Hand hand : frame.hands()) {
-				int fingerUpCount = 0;
-				for (Finger finger : hand.fingers()) {
-					Vector pointDirection = finger.direction();
-					if (pointDirection.getY() > fingerPointingUpNum) {
-						fingerUpCount++;
-					}
-				}
-				if (hand.isLeft()) {
-					if (fingerUpCount >= fingerNum) {
-						//System.out.println("All 5 fingers pointing up : left hand");
-						return true;
-					}
-				}
+	private boolean bioticGraspGestureDetected(Hand hand) {
+		int fingerUpCount = 0;
+		for (Finger finger : hand.fingers()) {
+			Vector pointDirection = finger.direction();
+			if (pointDirection.getY() > fingerPointingUpNum) {
+				fingerUpCount++;
 			}
 		}
-		return false;
+		return fingerUpCount >= fingerNum;
 	}
 	
 	/**
 	 * detects whether all fingers of both hands are forward (think a T-Rex)
 	 *
-	 * @param frame
+	 * @param hands
 	 * @return
 	 */
-	private boolean bioticOrbGestureDetected(Frame frame) {
+	private boolean bioticOrbGestureDetected(HandList hands) {
 		double bioticOrbFingerDirection = -.8;
 		int bioticOrbFingerCount = 8;
 		
-		if (frame.hands().count() >= 2) {
+		if (hands.count() >= 2) {
 			int fingerUpCount = 0;
-			for (Hand hand : frame.hands()) {
+			for (Hand hand : hands) {
 				//System.out.println("hand");
 				for (Finger finger : hand.fingers()) {
 					if (finger.type() != Finger.Type.TYPE_THUMB) {
@@ -283,45 +204,35 @@ public class GestureListener extends Listener {
 	/**
 	 * detects whether the left hand's 4 fingers are up and the thumb is to the right
 	 *
-	 * @param frame
+	 * @param hand
 	 * @return
 	 */
-	private boolean coalescenceGestureDetected(Frame frame) {
+	private boolean coalescenceGestureDetected(Hand hand) {
 		double coalescenceFingerDirection = .8;
 		int coalescenceFingerCount = 4;
 		boolean thumbPass = false;
 		
-		if (frame.hands().count() >= 1) {
-			for (Hand hand : frame.hands()) {
-				if (hand.isLeft()) {
-					int fingerUpCount = 0;
-					//System.out.println("hand");
-					for (Finger finger : hand.fingers()) {
-						Vector pointDirection = finger.direction();
-						
-						if (finger.type() != Finger.Type.TYPE_THUMB) {
-							if (pointDirection.getY() > coalescenceFingerDirection) {
-								fingerUpCount++;
-							}
-						} else if (finger.type() == Finger.Type.TYPE_THUMB) {
-							//System.out.println(finger.type() + " pointDirection" + pointDirection.toString());
-							if (pointDirection.getX() > coalescenceFingerDirection) {
-								thumbPass = true;
-							}
-						}
-					}
-					if (fingerUpCount >= coalescenceFingerCount && thumbPass) {
-						//System.out.println("four nonthumbs pointing up on left hand and thumb sufficiently pointing right");
-						return true;
-					}
+		int fingerUpCount = 0;
+		for (Finger finger : hand.fingers()) {
+			Vector pointDirection = finger.direction();
+			
+			if (finger.type() != Finger.Type.TYPE_THUMB) {
+				if (pointDirection.getY() > coalescenceFingerDirection) {
+					fingerUpCount++;
+				}
+			} else if (finger.type() == Finger.Type.TYPE_THUMB) {
+				//System.out.println(finger.type() + " pointDirection" + pointDirection.toString());
+				if (pointDirection.getX() > coalescenceFingerDirection) {
+					thumbPass = true;
 				}
 			}
 		}
-		return false;
+		
+		return fingerUpCount >= coalescenceFingerCount && thumbPass;
 	}
 	
-	private boolean fadeGestureDetected(Frame frame){
-		//todo
+	private boolean fadeGestureDetected(Frame frame) {
+		//todo, use grab_strength
 		return false;
 	}
 }
