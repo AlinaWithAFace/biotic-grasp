@@ -319,5 +319,10 @@ public class GestureListener extends Listener {
 		}
 		return false;
 	}
+	
+	private boolean fadeGestureDetected(Frame frame){
+		//todo
+		return false;
+	}
 }
 

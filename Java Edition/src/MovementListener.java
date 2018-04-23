@@ -19,17 +19,16 @@ public class MovementListener extends Listener {
 	static boolean crouchFlag;
 	public Robot robot;
 	
-	private double leftHandZAxisMidPoint = .5;
-	private double leftHandXAxisMidPoint = .25;
-	private double leftHandXZAxisPadding = .20;
+	private double zMid = .5;
+	private double zPadding = .20;
+	
+	private double yMid = .5;
+	private double yPadding = .20;
+	
+	private double xMid = .25;
+	private double xPadding = .20;
 	
 	public void onInit(Controller controller) {
-		try {
-			robot = new Robot();
-		} catch (AWTException e) {
-			e.printStackTrace();
-		}
-		
 		System.out.println("Initialized");
 	}
 	
@@ -75,17 +74,9 @@ public class MovementListener extends Listener {
 	 * @return
 	 */
 	private boolean forwardMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
-		double zMin = leftHandZAxisMidPoint - leftHandXZAxisPadding;
-		
+		double zMin = zMid - zPadding;
 		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-		//System.out.println(palmPosition);
-		
-		if (palmPosition.getZ() <= zMin) {
-			//System.out.println(" move forward maybe");
-			return true;
-		}
-		
-		return false;
+		return palmPosition.getZ() <= zMin;
 	}
 	
 	/**
@@ -96,14 +87,9 @@ public class MovementListener extends Listener {
 	 * @return
 	 */
 	private boolean backwardMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
-		double zMax = leftHandZAxisMidPoint + leftHandXZAxisPadding;
-		
+		double zMax = zMid + zPadding;
 		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-		if (palmPosition.getZ() >= zMax) {
-			//System.out.println(" move backward maybe");
-			return true;
-		}
-		return false;
+		return palmPosition.getZ() >= zMax;
 	}
 	
 	/**
@@ -114,15 +100,9 @@ public class MovementListener extends Listener {
 	 * @return
 	 */
 	private boolean leftMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
-		double xBoundary = leftHandXAxisMidPoint - leftHandXZAxisPadding;
-		
+		double xMin = xMid - xPadding;
 		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-		//System.out.println(palmPosition.getX());
-		if (palmPosition.getX() <= xBoundary) {
-			//System.out.println("move left maybe");
-			return true;
-		}
-		return false;
+		return palmPosition.getX() <= xMin;
 	}
 	
 	/**
@@ -133,26 +113,9 @@ public class MovementListener extends Listener {
 	 * @return
 	 */
 	private boolean rightMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
-		double xBoundary = leftHandXAxisMidPoint + leftHandXZAxisPadding;
-		
+		double xMax = xMid + xPadding;
 		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
-		if (palmPosition.getX() >= xBoundary) {
-			//System.out.println("move right maybe");
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Check if the given hand is hovering relatively high in order to trigger a jump
-	 *
-	 * @param hand
-	 * @param interactionBox
-	 * @return
-	 */
-	private boolean jumpMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
-		//todo
-		return false;
+		return palmPosition.getX() >= xMax;
 	}
 	
 	/**
@@ -163,10 +126,25 @@ public class MovementListener extends Listener {
 	 * @return
 	 */
 	private boolean crouchMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
-		//todo
-		return false;
+		double yMin = yMid - yPadding;
+		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+		return palmPosition.getY() <= yMin;
 	}
 	
+	/**
+	 * Check if the given hand is hovering relatively high in order to trigger a jump
+	 *
+	 * @param hand
+	 * @param interactionBox
+	 * @return
+	 */
+	private boolean jumpMovementHoverDetected(Hand hand, InteractionBox interactionBox) {
+		double yMax = yMid + yPadding;
+		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
+		return palmPosition.getY() >= yMax;
+		
+	}
+
 //	/**
 //	 * TODO
 //	 * This is kind of broken, but I want it to ideally return whether or not the gesture has changed from before or not
@@ -221,8 +199,10 @@ public class MovementListener extends Listener {
 			}
 			moveForwardFlag = false;
 		}
+		if (gestureFlag) {
+			tryToPressAButton(moveForwardFlag, KeyEvent.VK_W);
+		}
 		
-		tryToPressAButton(gestureFlag && moveForwardFlag, KeyEvent.VK_W);
 	}
 	
 	/**
@@ -245,8 +225,9 @@ public class MovementListener extends Listener {
 			}
 			moveBackwardFlag = false;
 		}
-		
-		tryToPressAButton(gestureFlag && moveBackwardFlag, KeyEvent.VK_S);
+		if (gestureFlag) {
+			tryToPressAButton(moveBackwardFlag, KeyEvent.VK_S);
+		}
 	}
 	
 	/**
@@ -270,7 +251,9 @@ public class MovementListener extends Listener {
 			moveLeftFlag = false;
 		}
 		
-		tryToPressAButton(gestureFlag && moveLeftFlag, KeyEvent.VK_A);
+		if (gestureFlag) {
+			tryToPressAButton(moveLeftFlag, KeyEvent.VK_A);
+		}
 	}
 	
 	/**
@@ -293,7 +276,34 @@ public class MovementListener extends Listener {
 			moveRightFlag = false;
 		}
 		
-		tryToPressAButton(gestureFlag && moveRightFlag, KeyEvent.VK_D);
+		if (gestureFlag) {
+			tryToPressAButton(moveRightFlag, KeyEvent.VK_D);
+		}
+		
+	}
+	
+	/**
+	 * @param hand
+	 * @param interactionBox
+	 */
+	private void handleCrouch(Hand hand, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+		
+		if (crouchMovementHoverDetected(hand, interactionBox)) {
+			if (!crouchFlag) {
+				gestureFlag = true;
+			}
+			crouchFlag = true;
+		} else {
+			if (crouchFlag) {
+				gestureFlag = true;
+			}
+			crouchFlag = false;
+		}
+		
+		if (gestureFlag) {
+			tryToPressAButton(crouchFlag, KeyEvent.CTRL_DOWN_MASK);
+		}
 	}
 	
 	/**
@@ -317,31 +327,9 @@ public class MovementListener extends Listener {
 			jumpingFlag = false;
 		}
 		
-		tryToPressAButton(gestureFlag && jumpingFlag, KeyEvent.VK_SPACE);
-		//TODO: test
-	}
-	
-	/**
-	 * @param hand
-	 * @param interactionBox
-	 */
-	private void handleCrouch(Hand hand, InteractionBox interactionBox) {
-		boolean gestureFlag = false;
-		
-		if (crouchMovementHoverDetected(hand, interactionBox)) {
-			if (!crouchFlag) {
-				gestureFlag = true;
-			}
-			crouchFlag = true;
-		} else {
-			if (crouchFlag) {
-				gestureFlag = true;
-			}
-			crouchFlag = false;
+		if (gestureFlag) {
+			tryToPressAButton(jumpingFlag, KeyEvent.VK_SPACE);
 		}
-		
-		tryToPressAButton(gestureFlag && crouchFlag, KeyEvent.CTRL_DOWN_MASK);
-		//TODO: test
 	}
 	
 	/**
@@ -353,6 +341,12 @@ public class MovementListener extends Listener {
 	 * @param keyEventCode
 	 */
 	private void tryToPressAButton(boolean performMovementFlag, int keyEventCode) {
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			e.printStackTrace();
+		}
+		
 		if (performMovementFlag) {
 			robot.keyPress(keyEventCode);
 		} else {
