@@ -11,18 +11,25 @@ import java.awt.event.KeyEvent;
  */
 public class MovementListener extends Listener {
 	
+	static boolean moveForwardFlag;
+	static boolean moveBackwardFlag;
+	static boolean moveLeftFlag;
+	static boolean moveRightFlag;
+	static boolean jumpingFlag;
+	static boolean crouchFlag;
 	public Robot robot;
-	
-	private boolean moveForwardFlag;
-	private boolean moveBackwardFlag;
-	private boolean moveLeftFlag;
-	private boolean moveRightFlag;
 	
 	private double leftHandZAxisMidPoint = .5;
 	private double leftHandXAxisMidPoint = .25;
 	private double leftHandXZAxisPadding = .20;
 	
 	public void onInit(Controller controller) {
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			e.printStackTrace();
+		}
+		
 		System.out.println("Initialized");
 	}
 	
@@ -47,6 +54,25 @@ public class MovementListener extends Listener {
 		handleBackward(frame, interactionBox);
 		handleRight(frame, interactionBox);
 		handleLeft(frame, interactionBox);
+	}
+	
+	/**
+	 * Given booleans to read, try to push a button based on whether or not it's true or false.
+	 * For example, if the gesture has changed from before and the related action key is true press the key,
+	 * but if it's false, release the key
+	 *
+	 * @param gestureChangedFlag
+	 * @param performMovementFlag
+	 * @param keyEventCode
+	 */
+	private void tryToPressAButton(boolean gestureChangedFlag, boolean performMovementFlag, int keyEventCode) {
+		if (gestureChangedFlag) {
+			if (performMovementFlag) {
+				robot.keyPress(keyEventCode);
+			} else {
+				robot.keyRelease(keyEventCode);
+			}
+		}
 	}
 	
 	/**
@@ -148,6 +174,17 @@ public class MovementListener extends Listener {
 		return false;
 	}
 	
+	private boolean jumpMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
+		//todo
+		return false;
+	}
+	
+	private boolean crouchMovementHoverDetected(Frame frame, InteractionBox interactionBox) {
+		//todo
+		return false;
+	}
+	
+	
 	/**
 	 * pushes the w key if forwardMovementHoverDetected is true
 	 *
@@ -155,8 +192,10 @@ public class MovementListener extends Listener {
 	 * @param interactionBox
 	 */
 	private void handleForward(Frame frame, InteractionBox interactionBox) {
-		boolean gestureFlag = false;
+		boolean gestureFlag;
+		//gestureFlag = detectGestureChange(forwardMovementHoverDetected(frame, interactionBox), MovementFlags.moveForwardFlag);
 		
+		gestureFlag = false;
 		if (forwardMovementHoverDetected(frame, interactionBox)) {
 			if (!moveForwardFlag) {
 				gestureFlag = true;
@@ -169,25 +208,52 @@ public class MovementListener extends Listener {
 			moveForwardFlag = false;
 		}
 		
-		if (gestureFlag) {
-			//System.out.println("moveForwardFlag raised " + moveForwardFlag);
-			if (moveForwardFlag) {
-				try {
-					robot = new Robot();
-					robot.keyPress(KeyEvent.VK_W);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			} else {
-				try {
-					robot = new Robot();
-					robot.keyRelease(KeyEvent.VK_W);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		tryToPressAButton(gestureFlag, moveForwardFlag, KeyEvent.VK_W);
 	}
+	
+	/**
+	 *
+	 * @param frame
+	 * @param interactionBox
+	 */
+	private void handleCrouch(Frame frame, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+		
+		if (crouchMovementHoverDetected(frame, interactionBox)) {
+			if (!crouchFlag) {
+				gestureFlag = true;
+			}
+			crouchFlag = true;
+		} else {
+			if (crouchFlag) {
+				gestureFlag = true;
+			}
+			crouchFlag = false;
+		}
+		
+		tryToPressAButton(gestureFlag, crouchFlag, KeyEvent.CTRL_DOWN_MASK);
+		//TODO: test
+	}
+	
+	private void handleJump(Frame frame, InteractionBox interactionBox) {
+		boolean gestureFlag = false;
+		
+		if (jumpMovementHoverDetected(frame, interactionBox)) {
+			if (!jumpingFlag) {
+				gestureFlag = true;
+			}
+			jumpingFlag = true;
+		} else {
+			if (jumpingFlag) {
+				gestureFlag = true;
+			}
+			jumpingFlag = false;
+		}
+		
+		tryToPressAButton(gestureFlag, jumpingFlag, KeyEvent.VK_SPACE);
+		//TODO: test
+	}
+	
 	
 	/**
 	 * pushes the s button if backwardMovementHoverDetected is true
@@ -210,25 +276,9 @@ public class MovementListener extends Listener {
 			moveBackwardFlag = false;
 		}
 		
-		if (gestureFlag) {
-			//System.out.println("moveBackwardFlag raised " + moveBackwardFlag);
-			if (moveBackwardFlag) {
-				try {
-					robot = new Robot();
-					robot.keyPress(KeyEvent.VK_S);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			} else {
-				try {
-					robot = new Robot();
-					robot.keyRelease(KeyEvent.VK_S);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		tryToPressAButton(gestureFlag, moveBackwardFlag, KeyEvent.VK_S);
 	}
+	
 	
 	/**
 	 * pushes the a key if leftMovementHoverDetected is true
@@ -251,24 +301,7 @@ public class MovementListener extends Listener {
 			moveLeftFlag = false;
 		}
 		
-		if (gestureFlag) {
-			//System.out.println("moveLeftFlag raised " + moveLeftFlag);
-			if (moveLeftFlag) {
-				try {
-					robot = new Robot();
-					robot.keyPress(KeyEvent.VK_A);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			} else {
-				try {
-					robot = new Robot();
-					robot.keyRelease(KeyEvent.VK_A);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		tryToPressAButton(gestureFlag, moveLeftFlag, KeyEvent.VK_A);
 	}
 	
 	/**
@@ -291,23 +324,25 @@ public class MovementListener extends Listener {
 			moveRightFlag = false;
 		}
 		
-		if (gestureFlag) {
-			//System.out.println("moveRightFlag raised " + moveRightFlag);
-			if (moveRightFlag) {
-				try {
-					robot = new Robot();
-					robot.keyPress(KeyEvent.VK_D);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			} else {
-				try {
-					robot = new Robot();
-					robot.keyRelease(KeyEvent.VK_D);
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		tryToPressAButton(gestureFlag, moveRightFlag, KeyEvent.VK_D);
 	}
 }
+
+
+//	private boolean detectGestureChange(boolean gestureDetected, boolean actionOccurring) {
+//		boolean gestureChangedFlag = false;
+//
+//		if (gestureDetected) {
+//			if (!actionOccurring) {
+//				gestureChangedFlag = true;
+//			}
+//			actionOccurring = true;
+//		} else {
+//			if (actionOccurring) {
+//				gestureChangedFlag = true;
+//			}
+//			actionOccurring = false;
+//		}
+//		return gestureChangedFlag;
+//
+//	}
