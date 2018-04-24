@@ -1,11 +1,8 @@
-## Inspiration
-Overwatch. Partially the community's [silly projects](https://www.youtube.com/watch?v=_GJ55UIyGvw), and partially one of the newer characters, [Moira](https://playoverwatch.com/en-us/heroes/moira/). It was a sort of perfect blend, with these things on my mind, and then major league hacking had a leap for Hoya Hacks!
-
 ## What it does
 
 ![Video Demo](ezgif.com-video-to-gif.gif)
 
-Technically, it types and moves the mouse by interpreting gestures as key presses or mouse movements. However, they're mapped to common first person shooter keys such as WASD, making it possible to play games.
+Technically, this thing types and moves the mouse by interpreting gestures as key presses or mouse movements. However, they're mapped to common first person shooter keys such as WASD, making it possible to play games.
 
 To be more specific, it partitions the leap's viewable area in half for each hand to have it's own space. The left hand's position is used to control movement when it's outside the central dead zone. In other words it pushes W to go forward, D to go right, S to go backwards, and A to go left.
 
