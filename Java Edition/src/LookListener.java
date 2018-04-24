@@ -28,13 +28,13 @@ public class LookListener extends Listener {
 	// The screen size, we only map the hand's direction to a portion of the screen, because you really only need some of it for a FPS
 	private Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 	private int xScreenMid = screen.width / 2;
-	private int xBuffer = screen.width / 6;
+	private int xBuffer = screen.width / 12;
 	private int xScreenMin = xScreenMid - xBuffer;
 	private int xScreenMax = xScreenMid + xBuffer;
 	private int xScreenDiff = xScreenMax - xScreenMin;
 	
 	private int yScreenMid = screen.height / 2;
-	private int yBuffer = screen.height / 6;
+	private int yBuffer = screen.height / 12;
 	private int yScreenMin = yScreenMid - yBuffer;
 	private int yScreenMax = yScreenMid + yBuffer;
 	private int yScreenDiff = yScreenMax - yScreenMin;
@@ -83,6 +83,7 @@ public class LookListener extends Listener {
 	 * @param interactionBox
 	 */
 	private void handleHand(Hand hand, InteractionBox interactionBox) {
+		//TODO: this is still hyper-sensitive, but I'm not sure how to make it better
 		Vector rawHandPos = hand.stabilizedPalmPosition();
 		Vector boxHandPos = interactionBox.normalizePoint(rawHandPos);
 		double newX = MouseInfo.getPointerInfo().getLocation().getX();

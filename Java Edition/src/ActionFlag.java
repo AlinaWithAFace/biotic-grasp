@@ -15,7 +15,6 @@ public enum ActionFlag {
 	COALESCENCE,
 	FADE,
 	MELEE,
-	GREETINGS,
-	THANKS;
+	WAVE;
 	boolean flag;
 }

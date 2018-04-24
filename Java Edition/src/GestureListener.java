@@ -41,6 +41,7 @@ public class GestureListener extends Listener {
 					handleLeftBioticGraspGesture(hand);
 					handleCoalescenceGesture(hand);
 					handleFadeGesture(hand);
+					handleWaveGesture(hand);
 				} else if (hand.isRight()) {
 					handleRightBioticGraspGesture(hand);
 					handleMeleeGesture(hand);
@@ -114,6 +115,19 @@ public class GestureListener extends Listener {
 		boolean gestureFlag = Utilities.detectGestureChange(gestureOccurring, ActionFlag.RIGHT_BIOTIC_GRASP);
 		if (gestureFlag) {
 			Utilities.tryToMouse(ActionFlag.RIGHT_BIOTIC_GRASP, InputEvent.BUTTON3_MASK);
+		}
+	}
+	
+	/**
+	 * Presses B if the gesture is detected
+	 *
+	 * @param hand
+	 */
+	private void handleWaveGesture(Hand hand) {
+		boolean gestureOccurring = waveGestureDetected(hand);
+		boolean gestureFlag = Utilities.detectGestureChange(gestureOccurring, ActionFlag.WAVE);
+		if (gestureFlag) {
+			Utilities.tryToTapAButton(ActionFlag.WAVE, KeyEvent.VK_B);
 		}
 	}
 	
@@ -202,6 +216,19 @@ public class GestureListener extends Listener {
 	private boolean fistGestureDetected(Hand hand) {
 		double gripThreshold = 1;
 		return hand.grabStrength() >= gripThreshold;
+	}
+	
+	/**
+	 * Returns true if the given hand's direction is straight up, ish
+	 *
+	 * @param hand
+	 * @return
+	 */
+	private boolean waveGestureDetected(Hand hand) {
+		double yStraightUp = .85;
+		double handDirection = hand.direction().getY();
+		
+		return handDirection >= yStraightUp;
 	}
 }
 
