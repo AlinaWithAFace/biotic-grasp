@@ -43,28 +43,17 @@ public class GestureListener extends Listener {
 					handleFadeGesture(hand);
 				} else if (hand.isRight()) {
 					handleRightBioticGraspGesture(hand);
+					handleMeleeGesture(hand);
 				}
 			}
 		}
 	}
 	
 	private void handleMeleeGesture(Hand hand) {
-		boolean gestureFlag = false;
-		
-		if (fistGestureDetected(hand)) {
-			if (!movementFlags.meleeFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.meleeFlag = true;
-		} else {
-			if (movementFlags.meleeFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.meleeFlag = false;
-		}
-		
+		boolean gestureOccurring = fistGestureDetected(hand);
+		boolean gestureFlag = Utilities.detectGestureChange(gestureOccurring, ActionFlag.MELEE);
 		if (gestureFlag) {
-			Utilities.tryToTapAButton(movementFlags.meleeFlag, KeyEvent.VK_V);
+			Utilities.tryToTapAButton(ActionFlag.MELEE, KeyEvent.VK_V);
 		}
 	}
 	
@@ -74,42 +63,18 @@ public class GestureListener extends Listener {
 	 * @param hand
 	 */
 	private void handleCoalescenceGesture(Hand hand) {
-		boolean gestureFlag = false;
-		
-		if (coalescenceGestureDetected(hand)) {
-			if (!movementFlags.coalescenceFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.coalescenceFlag = true;
-		} else {
-			if (movementFlags.coalescenceFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.coalescenceFlag = false;
-		}
-		
+		boolean gestureOccurring = coalescenceGestureDetected(hand);
+		boolean gestureFlag = Utilities.detectGestureChange(gestureOccurring, ActionFlag.COALESCENCE);
 		if (gestureFlag) {
-			Utilities.tryToTapAButton(movementFlags.coalescenceFlag, KeyEvent.VK_Q);
+			Utilities.tryToTapAButton(ActionFlag.COALESCENCE, KeyEvent.VK_Q);
 		}
 	}
 	
 	private void handleFadeGesture(Hand hand) {
-		boolean gestureFlag = false;
-		
-		if (fistGestureDetected(hand)) {
-			if (!movementFlags.fadeFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.fadeFlag = true;
-		} else {
-			if (movementFlags.fadeFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.fadeFlag = false;
-		}
-		
+		boolean gestureOccurring = fistGestureDetected(hand);
+		boolean gestureFlag = Utilities.detectGestureChange(gestureOccurring, ActionFlag.FADE);
 		if (gestureFlag) {
-			Utilities.tryToTapAButton(movementFlags.fadeFlag, KeyEvent.VK_SHIFT);
+			Utilities.tryToTapAButton(ActionFlag.FADE, KeyEvent.VK_SHIFT);
 		}
 	}
 	
@@ -119,22 +84,10 @@ public class GestureListener extends Listener {
 	 * @param hands
 	 */
 	private void handleBioticOrbGesture(HandList hands) {
-		boolean gestureFlag = false;
-		
-		if (bioticOrbGestureDetected(hands)) {
-			if (!movementFlags.bioticOrbFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.bioticOrbFlag = true;
-		} else {
-			if (movementFlags.bioticOrbFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.bioticOrbFlag = false;
-		}
-		
+		boolean gestureOccurring = bioticOrbGestureDetected(hands);
+		boolean gestureFlag = Utilities.detectGestureChange(gestureOccurring, ActionFlag.BIOTIC_ORB);
 		if (gestureFlag) {
-			Utilities.tryToTapAButton(movementFlags.bioticOrbFlag, KeyEvent.VK_E);
+			Utilities.tryToTapAButton(ActionFlag.BIOTIC_ORB, KeyEvent.VK_E);
 		}
 	}
 	
@@ -144,22 +97,10 @@ public class GestureListener extends Listener {
 	 * @param hand
 	 */
 	private void handleLeftBioticGraspGesture(Hand hand) {
-		boolean gestureFlag = false;
-		
-		if (bioticGraspGestureDetected(hand)) {
-			if (!movementFlags.leftBioticGraspFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.leftBioticGraspFlag = true;
-		} else {
-			if (movementFlags.leftBioticGraspFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.leftBioticGraspFlag = false;
-		}
-		
+		boolean gestureOccurring = bioticGraspGestureDetected(hand);
+		boolean gestureFlag = Utilities.detectGestureChange(gestureOccurring, ActionFlag.LEFT_BIOTIC_GRASP);
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(movementFlags.leftBioticGraspFlag, InputEvent.BUTTON1_DOWN_MASK);
+			Utilities.tryToMouse(ActionFlag.LEFT_BIOTIC_GRASP, InputEvent.BUTTON1_MASK);
 		}
 	}
 	
@@ -169,22 +110,10 @@ public class GestureListener extends Listener {
 	 * @param hand
 	 */
 	private void handleRightBioticGraspGesture(Hand hand) {
-		boolean gestureFlag = false;
-		
-		if (bioticGraspGestureDetected(hand)) {
-			if (!movementFlags.rightBioticGraspFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.rightBioticGraspFlag = true;
-		} else {
-			if (movementFlags.rightBioticGraspFlag) {
-				gestureFlag = true;
-			}
-			movementFlags.rightBioticGraspFlag = false;
-		}
-		
+		boolean gestureOccurring = bioticGraspGestureDetected(hand);
+		boolean gestureFlag = Utilities.detectGestureChange(gestureOccurring, ActionFlag.RIGHT_BIOTIC_GRASP);
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(movementFlags.rightBioticGraspFlag, InputEvent.BUTTON3_MASK);
+			Utilities.tryToMouse(ActionFlag.RIGHT_BIOTIC_GRASP, InputEvent.BUTTON3_MASK);
 		}
 	}
 	
