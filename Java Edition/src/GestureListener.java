@@ -13,6 +13,7 @@ public class GestureListener extends Listener {
 	private boolean leftBioticGraspFlag;
 	private boolean bioticOrbFlag;
 	private boolean coalescenceFlag;
+	private boolean fadeFlag;
 	
 	private double fingerPointingUpNum = .5;
 	private int fingerNum = 5;
@@ -44,6 +45,7 @@ public class GestureListener extends Listener {
 				if (hand.isLeft()) {
 					handleLeftBioticGraspGesture(hand);
 					handleCoalescenceGesture(hand);
+					handleFadeGesture(hand);
 				} else if (hand.isRight()) {
 					handleRightBioticGraspGesture(hand);
 				}
@@ -73,6 +75,26 @@ public class GestureListener extends Listener {
 		
 		if (gestureFlag) {
 			Utilities.tryToTapAButton(coalescenceFlag, KeyEvent.VK_Q);
+		}
+	}
+	
+	private void handleFadeGesture(Hand hand) {
+		boolean gestureFlag = false;
+		
+		if (fadeGestureDetected(hand)) {
+			if (!fadeFlag) {
+				gestureFlag = true;
+			}
+			fadeFlag = true;
+		} else {
+			if (fadeFlag) {
+				gestureFlag = true;
+			}
+			fadeFlag = false;
+		}
+		
+		if (gestureFlag) {
+			Utilities.tryToTapAButton(fadeFlag, KeyEvent.VK_SHIFT);
 		}
 	}
 	
@@ -181,13 +203,9 @@ public class GestureListener extends Listener {
 		if (hands.count() >= 2) {
 			int fingerUpCount = 0;
 			for (Hand hand : hands) {
-				//System.out.println("hand");
 				for (Finger finger : hand.fingers()) {
 					if (finger.type() != Finger.Type.TYPE_THUMB) {
-						Vector pointDirection = finger.direction();
-						//System.out.println("bioticOrbGestureDetected " + pointDirection.getZ());
-						
-						if (pointDirection.getZ() <= bioticOrbFingerDirection) {
+						if (finger.direction().getZ() <= bioticOrbFingerDirection) {
 							fingerUpCount++;
 						}
 					}
@@ -231,9 +249,15 @@ public class GestureListener extends Listener {
 		return fingerUpCount >= coalescenceFingerCount && thumbPass;
 	}
 	
-	private boolean fadeGestureDetected(Frame frame) {
-		//todo, use grab_strength
-		return false;
+	/**
+	 * Returns true if the given hand has a "strong grip", i.e., is balled into a fist
+	 *
+	 * @param hand
+	 * @return
+	 */
+	private boolean fadeGestureDetected(Hand hand) {
+		double gripThreshold = 1;
+		return hand.grabStrength() >= gripThreshold;
 	}
 }
 

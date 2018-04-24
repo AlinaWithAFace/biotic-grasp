@@ -2,7 +2,7 @@ import java.awt.*;
 
 public class Utilities {
 	/**
-	 * Given a boolean, try to push a button based on whether or not it's true or false.
+	 * Given a boolean, try to push a button based on whether said boolean is true or false.
 	 * If the bool is true, try to push the button, if it's false, try to release the button
 	 *
 	 * @param movementFlag
@@ -24,7 +24,7 @@ public class Utilities {
 	
 	/**
 	 * Similar to tryToPressAButton, but rather than potentially pressing or releasing it,
-	 * this simply presses and releases the key if the related boolean is positive
+	 * this simply presses and releases the key if the related boolean is positive and does nothing if it's negative
 	 *
 	 * @param movementFlag
 	 * @param keyEventCode
