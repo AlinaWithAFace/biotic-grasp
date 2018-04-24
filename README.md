@@ -32,13 +32,18 @@ Depends. I don't personally have a leap available, so unless I get one at some p
 
 If I did get my own leap or another one to work with, there are a couple things I might change/add:
 
-- Looking around via the right hand might take into account the hand's velocity for faster, more responsive turns.
-- More gestures for other common keys such as shift (for dashing/sprinting), ctrl (for crouching), and space (for jumping). Shift might be pointing all of your fingers backwards, as if you're swimming through the air. Crouching might work by positioning your hands below a vertical dead zone, and jumping might be positioning your hands above it.
-- Refactoring because there's a lot of duplicate code
-- Gestures for specific-to-Overwatch keys that trigger "hello", "thank you", "group up", and other communication hotkeys.
+- ~~Looking around via the right hand might take into account the hand's velocity for faster, more responsive turns.~~
+- ~~More gestures for other common keys such as shift (for dashing/sprinting), ctrl (for crouching), and space (for jumping). Shift might be pointing all of your fingers backwards, as if you're swimming through the air. Crouching might work by positioning your hands below a vertical dead zone, and jumping might be positioning your hands above it.~~
+- ~~Refactoring because there's a lot of duplicate code~~
+- ~~Gestures for specific-to-Overwatch keys that trigger "hello", "thank you", "group up", and other communication hotkeys.~~
 - A config file for users to easily edit in their own control schemes
-- Refactoring because there's a lot of duplicate code
+- ~~Refactoring because there's a lot of duplicate code~~
 - Optimizing existing gestures for more consistency
 - Add a video or visual demo showing the various gestures available
 - Add a ui of sorts to show when the controls are working properly vs when they're almost-but-not-quite there. I'm thinking a sort of overlay that shows the skeleton of your hand and maybe highlights when a given finger is pointed up/forward correctly, just to visually confirm you're doing it right. It might also have a visual depiction of the bounds for movement/looking around so you have a visual frame of reference.
 - Some people have asked about different control schemes for different characters, which could happen but it's a bit awkward to make work intuitively because everyone else in Overwatch holds a weeapon. Moira is unique in that she attacks and make an impact without holding a physical object because ingame plot shenanigans. But yeah, it would be cool to have other gestures match the character you're playing.
+
+
+## 2018-04-23
+
+So, I'm pretty happy with this for the moment in terms of how it works, but there's a distinct lack of visuals which isn't helpful. I guess the next move is to make something to that effect to help you figure out what you're doing. My first thought was to sort of port it to Unity and maybe highlight or change the colors of your hands if a particular gesture (really they're more like positions...) has been activated. Then maybe from there add some gif tutorials of sorts, but we'll see.
