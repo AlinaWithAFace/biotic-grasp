@@ -8,13 +8,6 @@ import java.awt.event.KeyEvent;
  */
 public class MovementListener extends Listener {
 	
-	static boolean moveForwardFlag;
-	static boolean moveBackwardFlag;
-	static boolean moveLeftFlag;
-	static boolean moveRightFlag;
-	static boolean jumpingFlag;
-	static boolean crouchFlag;
-	
 	private double zMid = .5;
 	private double zPadding = .20;
 	
@@ -49,11 +42,11 @@ public class MovementListener extends Listener {
 			for (Hand hand : frame.hands()) {
 				if (hand.isLeft()) {
 					handleForward(hand, interactionBox);
-					handleLeft(hand, interactionBox);
-					handleBackward(hand, interactionBox);
-					handleRight(hand, interactionBox);
-					handleJump(hand, interactionBox);
-					handleCrouch(hand, interactionBox);
+//					handleLeft(hand, interactionBox, moveLeftFlag);
+//					handleBackward(hand, interactionBox, moveBackwardFlag);
+//					handleRight(hand, interactionBox,moveRightFlag);
+//					handleJump(hand, interactionBox, jumpingFlag);
+//					handleCrouch(hand, interactionBox, crouchFlag);
 				}
 			}
 		}
@@ -139,33 +132,33 @@ public class MovementListener extends Listener {
 		Vector palmPosition = interactionBox.normalizePoint(hand.stabilizedPalmPosition());
 		return palmPosition.getY() >= yMax;
 	}
-
-//	/**
-//	 * TODO
-//	 * This is kind of broken, but I want it to ideally return whether or not the gesture has changed from before or not
-//	 * and modify a given boolean that gets read for movement later on,
-//	 * but turns out java doesn't like anything other than references
-//	 *
-//	 * @param gestureDetected
-//	 * @param actionOccurring
-//	 * @return
-//	 */
-//	private boolean detectGestureChange(boolean gestureDetected, boolean actionOccurring) {
-//		boolean gestureChangedFlag = false;
-//
-//		if (gestureDetected) {
-//			if (!actionOccurring) {
-//				gestureChangedFlag = true;
-//			}
-//			actionOccurring = true;
-//		} else {
-//			if (actionOccurring) {
-//				gestureChangedFlag = true;
-//			}
-//			actionOccurring = false;
-//		}
-//		return gestureChangedFlag;
-//	}
+	
+	/**
+	 * TODO
+	 * This is kind of broken, but I want it to ideally return whether or not the gesture has changed from before or not
+	 * and modify a given boolean that gets read for movement later on,
+	 * but turns out java doesn't like anything other than references
+	 *
+	 * @param gestureDetected
+	 * @param actionOccurring
+	 * @return
+	 */
+	private boolean detectGestureChange(boolean gestureDetected, boolean actionOccurring) {
+		boolean gestureChangedFlag = false;
+		
+		if (gestureDetected) {
+			if (!actionOccurring) {
+				gestureChangedFlag = true;
+			}
+			actionOccurring = true;
+		} else {
+			if (actionOccurring) {
+				gestureChangedFlag = true;
+			}
+			actionOccurring = false;
+		}
+		return gestureChangedFlag;
+	}
 	//---------------------------------------------------------------------------------------
 	//endregion
 	
@@ -184,18 +177,18 @@ public class MovementListener extends Listener {
 		
 		gestureFlag = false;
 		if (forwardMovementHoverDetected(hand, interactionBox)) {
-			if (!moveForwardFlag) {
+			if (!movementFlags.moveForwardFlag) {
 				gestureFlag = true;
 			}
-			moveForwardFlag = true;
+			movementFlags.moveForwardFlag = true;
 		} else {
-			if (moveForwardFlag) {
+			if (movementFlags.moveForwardFlag) {
 				gestureFlag = true;
 			}
-			moveForwardFlag = false;
+			movementFlags.moveForwardFlag = false;
 		}
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(moveForwardFlag, KeyEvent.VK_W);
+			Utilities.tryToPressAButton(movementFlags.moveForwardFlag, KeyEvent.VK_W);
 		}
 	}
 	
@@ -209,18 +202,18 @@ public class MovementListener extends Listener {
 		boolean gestureFlag = false;
 		
 		if (backwardMovementHoverDetected(hand, interactionBox)) {
-			if (!moveBackwardFlag) {
+			if (!movementFlags.moveBackwardFlag) {
 				gestureFlag = true;
 			}
-			moveBackwardFlag = true;
+			movementFlags.moveBackwardFlag = true;
 		} else {
-			if (moveBackwardFlag) {
+			if (movementFlags.moveBackwardFlag) {
 				gestureFlag = true;
 			}
-			moveBackwardFlag = false;
+			movementFlags.moveBackwardFlag = false;
 		}
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(moveBackwardFlag, KeyEvent.VK_S);
+			Utilities.tryToPressAButton(movementFlags.moveBackwardFlag, KeyEvent.VK_S);
 		}
 	}
 	
@@ -234,19 +227,19 @@ public class MovementListener extends Listener {
 		boolean gestureFlag = false;
 		
 		if (leftMovementHoverDetected(hand, interactionBox)) {
-			if (!moveLeftFlag) {
+			if (!movementFlags.moveLeftFlag) {
 				gestureFlag = true;
 			}
-			moveLeftFlag = true;
+			movementFlags.moveLeftFlag = true;
 		} else {
-			if (moveLeftFlag) {
+			if (movementFlags.moveLeftFlag) {
 				gestureFlag = true;
 			}
-			moveLeftFlag = false;
+			movementFlags.moveLeftFlag = false;
 		}
 		
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(moveLeftFlag, KeyEvent.VK_A);
+			Utilities.tryToPressAButton(movementFlags.moveLeftFlag, KeyEvent.VK_A);
 		}
 	}
 	
@@ -259,19 +252,19 @@ public class MovementListener extends Listener {
 	private void handleRight(Hand hand, InteractionBox interactionBox) {
 		boolean gestureFlag = false;
 		if (rightMovementHoverDetected(hand, interactionBox)) {
-			if (!moveRightFlag) {
+			if (!movementFlags.moveRightFlag) {
 				gestureFlag = true;
 			}
-			moveRightFlag = true;
+			movementFlags.moveRightFlag = true;
 		} else {
-			if (moveRightFlag) {
+			if (movementFlags.moveRightFlag) {
 				gestureFlag = true;
 			}
-			moveRightFlag = false;
+			movementFlags.moveRightFlag = false;
 		}
 		
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(moveRightFlag, KeyEvent.VK_D);
+			Utilities.tryToPressAButton(movementFlags.moveRightFlag, KeyEvent.VK_D);
 		}
 	}
 	
@@ -283,19 +276,19 @@ public class MovementListener extends Listener {
 		boolean gestureFlag = false;
 		
 		if (crouchMovementHoverDetected(hand, interactionBox)) {
-			if (!crouchFlag) {
+			if (!movementFlags.crouchFlag) {
 				gestureFlag = true;
 			}
-			crouchFlag = true;
+			movementFlags.crouchFlag = true;
 		} else {
-			if (crouchFlag) {
+			if (movementFlags.crouchFlag) {
 				gestureFlag = true;
 			}
-			crouchFlag = false;
+			movementFlags.crouchFlag = false;
 		}
 		
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(crouchFlag, KeyEvent.CTRL_DOWN_MASK);
+			Utilities.tryToPressAButton(movementFlags.crouchFlag, KeyEvent.CTRL_DOWN_MASK);
 		}
 	}
 	
@@ -309,19 +302,19 @@ public class MovementListener extends Listener {
 		boolean gestureFlag = false;
 		
 		if (jumpMovementHoverDetected(hand, interactionBox)) {
-			if (!jumpingFlag) {
+			if (!movementFlags.jumpingFlag) {
 				gestureFlag = true;
 			}
-			jumpingFlag = true;
+			movementFlags.jumpingFlag = true;
 		} else {
-			if (jumpingFlag) {
+			if (movementFlags.jumpingFlag) {
 				gestureFlag = true;
 			}
-			jumpingFlag = false;
+			movementFlags.jumpingFlag = false;
 		}
 		
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(jumpingFlag, KeyEvent.VK_SPACE);
+			Utilities.tryToPressAButton(movementFlags.jumpingFlag, KeyEvent.VK_SPACE);
 		}
 	}
 	

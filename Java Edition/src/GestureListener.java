@@ -9,11 +9,6 @@ import java.awt.event.KeyEvent;
  * Handles various gestures using one or more hands
  */
 public class GestureListener extends Listener {
-	private boolean rightBioticGraspFlag;
-	private boolean leftBioticGraspFlag;
-	private boolean bioticOrbFlag;
-	private boolean coalescenceFlag;
-	private boolean fadeFlag;
 	
 	private double fingerPointingUpNum = .5;
 	private int fingerNum = 5;
@@ -53,6 +48,26 @@ public class GestureListener extends Listener {
 		}
 	}
 	
+	private void handleMeleeGesture(Hand hand) {
+		boolean gestureFlag = false;
+		
+		if (fistGestureDetected(hand)) {
+			if (!movementFlags.meleeFlag) {
+				gestureFlag = true;
+			}
+			movementFlags.meleeFlag = true;
+		} else {
+			if (movementFlags.meleeFlag) {
+				gestureFlag = true;
+			}
+			movementFlags.meleeFlag = false;
+		}
+		
+		if (gestureFlag) {
+			Utilities.tryToTapAButton(movementFlags.meleeFlag, KeyEvent.VK_V);
+		}
+	}
+	
 	/**
 	 * pressed q if coalescenceGesture is detected
 	 *
@@ -62,39 +77,39 @@ public class GestureListener extends Listener {
 		boolean gestureFlag = false;
 		
 		if (coalescenceGestureDetected(hand)) {
-			if (!coalescenceFlag) {
+			if (!movementFlags.coalescenceFlag) {
 				gestureFlag = true;
 			}
-			coalescenceFlag = true;
+			movementFlags.coalescenceFlag = true;
 		} else {
-			if (coalescenceFlag) {
+			if (movementFlags.coalescenceFlag) {
 				gestureFlag = true;
 			}
-			coalescenceFlag = false;
+			movementFlags.coalescenceFlag = false;
 		}
 		
 		if (gestureFlag) {
-			Utilities.tryToTapAButton(coalescenceFlag, KeyEvent.VK_Q);
+			Utilities.tryToTapAButton(movementFlags.coalescenceFlag, KeyEvent.VK_Q);
 		}
 	}
 	
 	private void handleFadeGesture(Hand hand) {
 		boolean gestureFlag = false;
 		
-		if (fadeGestureDetected(hand)) {
-			if (!fadeFlag) {
+		if (fistGestureDetected(hand)) {
+			if (!movementFlags.fadeFlag) {
 				gestureFlag = true;
 			}
-			fadeFlag = true;
+			movementFlags.fadeFlag = true;
 		} else {
-			if (fadeFlag) {
+			if (movementFlags.fadeFlag) {
 				gestureFlag = true;
 			}
-			fadeFlag = false;
+			movementFlags.fadeFlag = false;
 		}
 		
 		if (gestureFlag) {
-			Utilities.tryToTapAButton(fadeFlag, KeyEvent.VK_SHIFT);
+			Utilities.tryToTapAButton(movementFlags.fadeFlag, KeyEvent.VK_SHIFT);
 		}
 	}
 	
@@ -107,19 +122,19 @@ public class GestureListener extends Listener {
 		boolean gestureFlag = false;
 		
 		if (bioticOrbGestureDetected(hands)) {
-			if (!bioticOrbFlag) {
+			if (!movementFlags.bioticOrbFlag) {
 				gestureFlag = true;
 			}
-			bioticOrbFlag = true;
+			movementFlags.bioticOrbFlag = true;
 		} else {
-			if (bioticOrbFlag) {
+			if (movementFlags.bioticOrbFlag) {
 				gestureFlag = true;
 			}
-			bioticOrbFlag = false;
+			movementFlags.bioticOrbFlag = false;
 		}
 		
 		if (gestureFlag) {
-			Utilities.tryToTapAButton(bioticOrbFlag, KeyEvent.VK_E);
+			Utilities.tryToTapAButton(movementFlags.bioticOrbFlag, KeyEvent.VK_E);
 		}
 	}
 	
@@ -132,19 +147,19 @@ public class GestureListener extends Listener {
 		boolean gestureFlag = false;
 		
 		if (bioticGraspGestureDetected(hand)) {
-			if (!leftBioticGraspFlag) {
+			if (!movementFlags.leftBioticGraspFlag) {
 				gestureFlag = true;
 			}
-			leftBioticGraspFlag = true;
+			movementFlags.leftBioticGraspFlag = true;
 		} else {
-			if (leftBioticGraspFlag) {
+			if (movementFlags.leftBioticGraspFlag) {
 				gestureFlag = true;
 			}
-			leftBioticGraspFlag = false;
+			movementFlags.leftBioticGraspFlag = false;
 		}
 		
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(leftBioticGraspFlag, InputEvent.BUTTON1_DOWN_MASK);
+			Utilities.tryToPressAButton(movementFlags.leftBioticGraspFlag, InputEvent.BUTTON1_DOWN_MASK);
 		}
 	}
 	
@@ -157,19 +172,19 @@ public class GestureListener extends Listener {
 		boolean gestureFlag = false;
 		
 		if (bioticGraspGestureDetected(hand)) {
-			if (!rightBioticGraspFlag) {
+			if (!movementFlags.rightBioticGraspFlag) {
 				gestureFlag = true;
 			}
-			rightBioticGraspFlag = true;
+			movementFlags.rightBioticGraspFlag = true;
 		} else {
-			if (rightBioticGraspFlag) {
+			if (movementFlags.rightBioticGraspFlag) {
 				gestureFlag = true;
 			}
-			rightBioticGraspFlag = false;
+			movementFlags.rightBioticGraspFlag = false;
 		}
 		
 		if (gestureFlag) {
-			Utilities.tryToPressAButton(rightBioticGraspFlag, InputEvent.BUTTON3_MASK);
+			Utilities.tryToPressAButton(movementFlags.rightBioticGraspFlag, InputEvent.BUTTON3_MASK);
 		}
 	}
 	
@@ -255,7 +270,7 @@ public class GestureListener extends Listener {
 	 * @param hand
 	 * @return
 	 */
-	private boolean fadeGestureDetected(Hand hand) {
+	private boolean fistGestureDetected(Hand hand) {
 		double gripThreshold = 1;
 		return hand.grabStrength() >= gripThreshold;
 	}
